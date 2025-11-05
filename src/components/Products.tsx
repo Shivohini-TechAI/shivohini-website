@@ -1,4 +1,4 @@
-
+import React, { useState } from 'react';
 import { Brain, Eye, Bone as Drone, MessageCircle, Globe, ChevronRight } from 'lucide-react';
 
 const Products: React.FC = () => {
