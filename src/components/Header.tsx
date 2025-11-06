@@ -16,51 +16,7 @@ const Header: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-<<<<<<< HEAD
   const navItems = ['Home', 'About Us', 'Products', 'Industries', 'Blog', 'Contact'];
-=======
-  useEffect(() => {
-    const sections = document.querySelectorAll("section[id]");
-    const handleScroll = () => {
-      let curr = "home";
-      sections.forEach((sec) => {
-        if (window.scrollY >= sec.offsetTop - 120) curr = sec.id;
-      });
-      setActiveSection(curr);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const navItems = [
-    { name: "Home", hasDropdown: false },
-    { name: "About Us", hasDropdown: false },
-    { name: "Solutions", hasDropdown: true },
-    { name: "Industries", hasDropdown: true },
-    { name: "Careers", hasDropdown: false },
-    { name: "Contact", hasDropdown: false },
-  ];
-
-  const dropdownItems: Record<DropdownKey, { name: string; link: string }[]> = {
-    Solutions: [
-      { name: "AI Chatbot", link: "#ai-chatbot" },
-      { name: "Voice Assistant", link: "#voice-assistant" },
-      { name: "AI Automation", link: "#automation" },
-      { name: "AI Consulting", link: "#consulting" },
-    ],
-    Industries: [
-      { name: "Hotel", link: "#hotel" },
-      { name: "Restaurant", link: "#restaurant" },
-      { name: "Supermarket", link: "#supermarket" },
-      { name: "Export-Import", link: "#export-import" },
-      { name: "Education", link: "#education" },
-      { name: "Real Estate", link: "#realestate" },
-      { name: "Finance & Accounting", link: "#finance" },
-      { name: "HR", link: "#hr" },
-      { name: "Sports", link: "#sports" },
-    ],
-  };
->>>>>>> origin/main
 
   return (
     <header
@@ -90,53 +46,24 @@ const Header: React.FC = () => {
           <nav className="hidden md:flex items-center space-x-8 relative">
             {navItems.map((item) => (
               <div
-                key={item.name}
+                key={item}
                 className="relative"
-                onMouseEnter={() =>
-                  item.hasDropdown && setActivePanel(item.name as DropdownKey)
-                }
-                onMouseLeave={() => setActivePanel(null)}
               >
                 <Link
                   to={
-                    item.name === "Home"
+                    item === "Home"
                       ? "/"
-                      : `/${item.name.toLowerCase().replace(" ", "-")}`
+                      : `/${item.toLowerCase().replace(" ", "-")}`
                   }
                   className={`relative font-medium transition-all duration-300 hover:text-blue-600 focus:outline-none focus:ring-0 ${
                     activeSection.toLowerCase() ===
-                    item.name.toLowerCase().replace(" ", "-")
+                    item.toLowerCase().replace(" ", "-")
                       ? "text-blue-600"
                       : "text-gray-700"
                   }`}
                 >
-                  {item.name}
+                  {item}
                 </Link>
-
-                {item.hasDropdown && (
-                  <div
-                    className={`absolute left-0 mt-3 bg-white/90 backdrop-blur-md border border-gray-200 shadow-lg rounded-2xl min-w-[240px] p-4 transition-all duration-300 transform origin-top ${
-                      activePanel === item.name
-                        ? "opacity-100 scale-100 pointer-events-auto"
-                        : "opacity-0 scale-95 pointer-events-none"
-                    }`}
-                  >
-                    {dropdownItems[item.name as DropdownKey]?.map((sub) => (
-                      <Link
-                        key={sub.name}
-                        to={`/${item.name
-                          .toLowerCase()
-                          .replace(" ", "-")}/${sub.name
-                          .toLowerCase()
-                          .replace(/ /g, "-")}`}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-0"
-                        onClick={() => setActivePanel(null)}
-                      >
-                        <span className="text-sm font-medium">{sub.name}</span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
               </div>
             ))}
           </nav>
@@ -178,37 +105,18 @@ const Header: React.FC = () => {
 
             <nav className="space-y-3">
               {navItems.map((item) => (
-                <div key={item.name}>
-                  <button
-                    className="w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex justify-between items-center transition-all duration-300 focus:outline-none focus:ring-0"
-                    onClick={() =>
-                      item.hasDropdown
-                        ? setMobilePanel(item.name as DropdownKey)
-                        : setIsMenuOpen(false)
+                <div key={item}>
+                  <Link
+                    to={
+                      item === "Home"
+                        ? "/"
+                        : `/${item.toLowerCase().replace(" ", "-")}`
                     }
+                    className="w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex justify-between items-center transition-all duration-300 focus:outline-none focus:ring-0"
+                    onClick={() => setIsMenuOpen(false)}
                   >
-                    {item.name}
-                    {item.hasDropdown && <span>›</span>}
-                  </button>
-
-                  {item.hasDropdown && mobilePanel === item.name && (
-                    <div className="mt-2 space-y-1">
-                      {dropdownItems[item.name as DropdownKey].map((sub) => (
-                        <Link
-                          key={sub.name}
-                          to={`/${item.name
-                            .toLowerCase()
-                            .replace(" ", "-")}/${sub.name
-                            .toLowerCase()
-                            .replace(/ /g, "-")}`}
-                          className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-all duration-300 focus:outline-none focus:ring-0"
-                          onClick={() => setMobilePanel(null)}
-                        >
-                          {sub.name}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
+                    {item}
+                  </Link>
                 </div>
               ))}
             </nav>
