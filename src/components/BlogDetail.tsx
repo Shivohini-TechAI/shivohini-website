@@ -25,34 +25,27 @@ const BlogDetail: React.FC = () => {
   const [fullContentLoading, setFullContentLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    // Static blog articles focused on IT, Computer, AI Tech Industry
-    const staticArticles: Article[] = [
-      {
-        date: new Date().toISOString().split('T')[0],
-        title: "The Future of Artificial Intelligence in Enterprise Solutions",
-        description: "Exploring how AI is transforming business operations and decision-making processes across industries.",
-        content: "Artificial Intelligence is revolutionizing the way enterprises operate. From predictive analytics to automated decision-making, AI technologies are enabling businesses to process vast amounts of data at unprecedented speeds. Machine learning algorithms can now identify patterns and trends that were previously invisible to human analysts. Key areas of impact include customer service automation, supply chain optimization, and risk assessment. As AI continues to evolve, we're seeing the emergence of more sophisticated applications like natural language processing, computer vision, and generative AI models. The integration of AI into enterprise systems requires careful consideration of ethical implications, data privacy, and workforce transformation. Companies that successfully adopt AI technologies are gaining significant competitive advantages through improved efficiency, reduced costs, and enhanced customer experiences.",
-        url: "/blog/0"
-      },
-      {
-        date: new Date(Date.now() - 86400000).toISOString().split('T')[0], // Yesterday
-        title: "Cloud Computing: Revolutionizing IT Infrastructure",
-        description: "How cloud technologies are reshaping IT infrastructure and enabling scalable, cost-effective solutions.",
-        content: "Cloud computing has fundamentally changed the IT landscape. Traditional on-premises data centers are being replaced by scalable, pay-as-you-go cloud services that offer unprecedented flexibility and cost efficiency. Major cloud providers like AWS, Azure, and Google Cloud offer a comprehensive suite of services including Infrastructure as a Service (IaaS), Platform as a Service (PaaS), and Software as a Service (SaaS). The benefits of cloud adoption include reduced capital expenditures, improved scalability, enhanced security, and faster deployment times. Multi-cloud and hybrid cloud strategies are becoming increasingly popular as organizations seek to avoid vendor lock-in and optimize their IT investments. However, successful cloud migration requires careful planning, including data migration strategies, security considerations, and staff training. The future of cloud computing looks promising with the emergence of edge computing, serverless architectures, and AI-powered cloud management tools.",
-        url: "/blog/1"
-      },
-      {
-        date: new Date(Date.now() - 172800000).toISOString().split('T')[0], // Day before yesterday
-        title: "Cybersecurity in the Digital Age: Protecting Critical Assets",
-        description: "Essential strategies for safeguarding digital assets in an increasingly connected and threat-filled environment.",
-        content: "As digital transformation accelerates, cybersecurity has become a critical concern for organizations worldwide. The proliferation of connected devices, cloud services, and remote work has expanded the attack surface significantly. Common threats include ransomware, phishing attacks, data breaches, and supply chain vulnerabilities. Effective cybersecurity requires a multi-layered approach that includes network security, endpoint protection, identity and access management, and security awareness training. Advanced technologies like AI-powered threat detection, zero-trust architectures, and blockchain-based security solutions are helping organizations stay ahead of evolving threats. Regulatory compliance, such as GDPR and CCPA, adds another layer of complexity to cybersecurity management. Organizations must invest in robust security frameworks, regular vulnerability assessments, and incident response planning. The human element remains crucial, with employee training and awareness programs playing a vital role in preventing security incidents. As cyber threats continue to evolve, proactive security measures and continuous monitoring are essential for protecting critical digital assets.",
-        url: "/blog/2"
+    // Load articles from localStorage
+    const today = new Date().toISOString().split('T')[0];
+    const cacheKey = `news_${today}`;
+
+    let articles: Article[] = [];
+    const cachedData = localStorage.getItem(cacheKey);
+    if (cachedData) {
+      articles = JSON.parse(cachedData);
+    } else {
+      // Fallback to yesterday's data if today's data is not available
+      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      const yesterdayCacheKey = `news_${yesterday}`;
+      const yesterdayData = localStorage.getItem(yesterdayCacheKey);
+      if (yesterdayData) {
+        articles = JSON.parse(yesterdayData);
       }
-    ];
+    }
 
     const articleIndex = parseInt(id || '0');
-    if (staticArticles[articleIndex]) {
-      setArticle(staticArticles[articleIndex]);
+    if (articles[articleIndex]) {
+      setArticle(articles[articleIndex]);
     } else {
       setError('Article not found');
     }
@@ -98,20 +91,6 @@ const BlogDetail: React.FC = () => {
         </button>
 
         <article className="bg-white rounded-lg shadow-md p-8">
-          {/* Article Image */}
-          {article.urlToImage && (
-            <div className="mb-6">
-              <img
-                src={article.urlToImage}
-                alt={article.title}
-                className="w-full h-64 object-cover rounded-lg"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-            </div>
-          )}
-
           {/* Article Meta */}
           <div className="text-sm text-gray-500 mb-4 flex flex-wrap items-center gap-4">
             <span>{new Date(article.publishedAt || article.date).toLocaleDateString()}</span>

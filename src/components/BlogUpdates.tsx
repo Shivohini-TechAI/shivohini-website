@@ -11,6 +11,8 @@ interface Article {
     name: string;
   };
   urlToImage?: string;
+  author?: string;
+  publishedAt?: string;
 }
 
 const DailyBlogUpdates = () => {
@@ -20,6 +22,26 @@ const DailyBlogUpdates = () => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [clickedArticles, setClickedArticles] = useState<Set<number>>(new Set());
   const navigate = useNavigate();
+
+  // Function to format date as Today, Yesterday, or Day before yesterday
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    const dayBeforeYesterday = new Date(today);
+    dayBeforeYesterday.setDate(today.getDate() - 2);
+
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    } else if (date.toDateString() === dayBeforeYesterday.toDateString()) {
+      return 'Day before yesterday';
+    } else {
+      return date.toLocaleDateString();
+    }
+  };
 
   // Function to strip HTML tags, images, and unwanted content from text
   const stripHtml = (html: string) => {
@@ -75,34 +97,97 @@ const DailyBlogUpdates = () => {
     return text;
   };
 
-  useEffect(() => {
-    // Static blog articles focused on IT, Computer, AI Tech Industry
-    const staticArticles: Article[] = [
-      {
-        date: new Date().toISOString().split('T')[0],
-        title: "The Future of Artificial Intelligence in Enterprise Solutions",
-        description: "Exploring how AI is transforming business operations and decision-making processes across industries.",
-        content: "Artificial Intelligence is revolutionizing the way enterprises operate. From predictive analytics to automated decision-making, AI technologies are enabling businesses to process vast amounts of data at unprecedented speeds. Machine learning algorithms can now identify patterns and trends that were previously invisible to human analysts. Key areas of impact include customer service automation, supply chain optimization, and risk assessment. As AI continues to evolve, we're seeing the emergence of more sophisticated applications like natural language processing, computer vision, and generative AI models. The integration of AI into enterprise systems requires careful consideration of ethical implications, data privacy, and workforce transformation. Companies that successfully adopt AI technologies are gaining significant competitive advantages through improved efficiency, reduced costs, and enhanced customer experiences.",
-        url: "/blog/0"
-      },
-      {
-        date: new Date(Date.now() - 86400000).toISOString().split('T')[0], // Yesterday
-        title: "Cloud Computing: Revolutionizing IT Infrastructure",
-        description: "How cloud technologies are reshaping IT infrastructure and enabling scalable, cost-effective solutions.",
-        content: "Cloud computing has fundamentally changed the IT landscape. Traditional on-premises data centers are being replaced by scalable, pay-as-you-go cloud services that offer unprecedented flexibility and cost efficiency. Major cloud providers like AWS, Azure, and Google Cloud offer a comprehensive suite of services including Infrastructure as a Service (IaaS), Platform as a Service (PaaS), and Software as a Service (SaaS). The benefits of cloud adoption include reduced capital expenditures, improved scalability, enhanced security, and faster deployment times. Multi-cloud and hybrid cloud strategies are becoming increasingly popular as organizations seek to avoid vendor lock-in and optimize their IT investments. However, successful cloud migration requires careful planning, including data migration strategies, security considerations, and staff training. The future of cloud computing looks promising with the emergence of edge computing, serverless architectures, and AI-powered cloud management tools.",
-        url: "/blog/1"
-      },
-      {
-        date: new Date(Date.now() - 172800000).toISOString().split('T')[0], // Day before yesterday
-        title: "Cybersecurity in the Digital Age: Protecting Critical Assets",
-        description: "Essential strategies for safeguarding digital assets in an increasingly connected and threat-filled environment.",
-        content: "As digital transformation accelerates, cybersecurity has become a critical concern for organizations worldwide. The proliferation of connected devices, cloud services, and remote work has expanded the attack surface significantly. Common threats include ransomware, phishing attacks, data breaches, and supply chain vulnerabilities. Effective cybersecurity requires a multi-layered approach that includes network security, endpoint protection, identity and access management, and security awareness training. Advanced technologies like AI-powered threat detection, zero-trust architectures, and blockchain-based security solutions are helping organizations stay ahead of evolving threats. Regulatory compliance, such as GDPR and CCPA, adds another layer of complexity to cybersecurity management. Organizations must invest in robust security frameworks, regular vulnerability assessments, and incident response planning. The human element remains crucial, with employee training and awareness programs playing a vital role in preventing security incidents. As cyber threats continue to evolve, proactive security measures and continuous monitoring are essential for protecting critical digital assets.",
-        url: "/blog/2"
-      }
-    ];
+  // Function to fetch news from NewsAPI
+  const fetchNews = async () => {
+    const apiKey = 'c9263a027df943ee958b80b76fa1c60d';
+    const today = new Date().toISOString().split('T')[0];
+    const cacheKey = `news_${today}`;
 
-    setArticles(staticArticles);
-    setLoading(false);
+    // Check if we have cached data for today
+    const cachedData = localStorage.getItem(cacheKey);
+    if (cachedData) {
+      const parsedData = JSON.parse(cachedData);
+      setArticles(parsedData.slice(0, 3)); // Ensure only 3 articles are shown
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://newsapi.org/v2/everything?q=AI+OR+artificial+intelligence+OR+computer+OR+IT+OR+technology+OR+innovation+OR+invention&sortBy=publishedAt&apiKey=${apiKey}&pageSize=20&domains=techcrunch.com,wired.com,arstechnica.com,thenextweb.com,venturebeat.com`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      if (data.status === 'ok' && data.articles) {
+        // Filter articles to only show today's news and exclude unwanted sources and content
+        const today = new Date().toISOString().split('T')[0];
+        const unwantedSources = ['buzzfeed', 'buzzfeed.com', 'BuzzFeed', 'buzzfeednews'];
+        const unwantedUrls = ['buzzfeed.com'];
+        const unwantedKeywords = [
+          'people whose lives', 'blown up by', 'unfortunate decisions',
+          'viral', 'shocking', 'amazing', 'incredible', 'mind-blowing',
+          'you won\'t believe', 'what happened next', 'gone wrong',
+          'fails', 'fails compilation', 'funny', 'hilarious', 'laugh',
+          'entertainment', 'celebrity', 'celebrities', 'hollywood',
+          'movie', 'movies', 'tv show', 'tv shows', 'netflix', 'streaming'
+        ];
+
+        const todaysArticles = data.articles.filter((article: any) => {
+          const articleDate = new Date(article.publishedAt).toISOString().split('T')[0];
+          const sourceName = article.source?.name?.toLowerCase() || '';
+          const articleUrl = article.url?.toLowerCase() || '';
+          const title = article.title?.toLowerCase() || '';
+          const description = article.description?.toLowerCase() || '';
+
+          const isUnwantedBySource = unwantedSources.some(unwanted => sourceName.includes(unwanted));
+          const isUnwantedByUrl = unwantedUrls.some(unwanted => articleUrl.includes(unwanted));
+          const isUnwantedByTitle = unwantedKeywords.some(keyword => title.includes(keyword));
+          const isUnwantedByDescription = unwantedKeywords.some(keyword => description.includes(keyword));
+
+          return articleDate === today && !isUnwantedBySource && !isUnwantedByUrl && !isUnwantedByTitle && !isUnwantedByDescription;
+        });
+
+        // Take up to 3 articles from today
+        const selectedArticles = todaysArticles.slice(0, 3);
+
+        const mappedArticles: Article[] = selectedArticles.map((article: any, index: number) => ({
+          date: new Date(article.publishedAt).toISOString().split('T')[0],
+          title: article.title || 'No Title',
+          description: article.description || 'No Description',
+          content: article.content || article.description || 'No Content',
+          url: article.url,
+          source: { name: article.source?.name || 'Unknown Source' },
+          urlToImage: article.urlToImage,
+          author: article.author,
+          publishedAt: article.publishedAt
+        }));
+
+        setArticles(mappedArticles);
+        // Cache the data
+        localStorage.setItem(cacheKey, JSON.stringify(mappedArticles));
+      } else {
+        throw new Error(data.message || 'Failed to fetch news');
+      }
+    } catch (err) {
+      console.error('Error fetching news:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch news');
+
+      // Try to load cached data from previous days if available
+      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      const yesterdayCacheKey = `news_${yesterday}`;
+      const yesterdayData = localStorage.getItem(yesterdayCacheKey);
+      if (yesterdayData) {
+        setArticles(JSON.parse(yesterdayData));
+        setError('Showing yesterday\'s news due to API error');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNews();
   }, []);
 
   if (loading) {
