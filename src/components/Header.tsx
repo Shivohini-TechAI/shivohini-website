@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import logo from "../assets/logo.png";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  type DropdownKey = "Solutions" | "Industries";
-  const [mobilePanel, setMobilePanel] = useState<DropdownKey | null>(null);
-  const [activePanel, setActivePanel] = useState<DropdownKey | null>(null);
-  const [activeSection, setActiveSection] = useState("home");
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -20,9 +18,9 @@ const Header: React.FC = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
         isScrolled
-          ? "bg-white/95 backdrop-blur-xl shadow-xl"
+          ? "bg-white shadow-[0_4px_20px_rgba(0,0,0,0.15)]"
           : "bg-transparent"
       }`}
     >
@@ -86,22 +84,57 @@ const Header: React.FC = () => {
               : "opacity-0 pointer-events-none"
           }`}
         >
-          <div
-            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-            onClick={() => setIsMenuOpen(false)}
-          ></div>
-
-          <div
-            className={`absolute right-0 top-0 h-full w-72 bg-white shadow-xl p-6 transform transition-transform duration-300 rounded-l-2xl ${
-              isMenuOpen ? "translate-x-0" : "translate-x-full"
+          <div className="relative">
+            <img
+              src={logo}
+              alt="Shivohini TechAI Logo"
+              className={`w-11 h-11 md:w-12 md:h-12 transition-all duration-500 ${
+                isScrolled
+                  ? "drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]"
+                  : "drop-shadow-[0_0_12px_rgba(56,189,248,0.6)]"
+              } group-hover:drop-shadow-[0_0_18px_rgba(147,51,234,0.6)]`}
+            />
+          </div>
+          <span
+            className={`text-2xl font-bold tracking-tight transition-all duration-500 ${
+              isScrolled
+                ? "text-slate-900"
+                : "bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent"
             }`}
           >
-            <button
-              className="mb-4 text-gray-600 focus:outline-none focus:ring-0"
-              onClick={() => setIsMenuOpen(false)}
+            Shivohini TechAI
+          </span>
+        </Link>
+
+        {/* 🔸 Desktop Navbar */}
+        <nav className="hidden md:flex items-center gap-10">
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`relative text-lg font-medium transition-all duration-300 ${
+                location.pathname === item.path
+                  ? isScrolled
+                    ? "text-blue-600"
+                    : "text-white"
+                  : isScrolled
+                  ? "text-gray-700 hover:text-blue-600"
+                  : "text-gray-300 hover:text-white"
+              }`}
             >
-              ← Close
-            </button>
+              {item.name}
+              {location.pathname === item.path && (
+                <span
+                  className={`absolute left-1/2 -bottom-2 w-3/5 h-[3px] rounded-full transform -translate-x-1/2 shadow-[0_0_10px_rgba(59,130,246,0.8)] animate-pulse ${
+                    isScrolled
+                      ? "bg-gradient-to-r from-blue-500 to-purple-500"
+                      : "bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500"
+                  }`}
+                />
+              )}
+            </Link>
+          ))}
+        </nav>
 
             <nav className="space-y-3">
               {navItems.map((item) => (
@@ -123,6 +156,36 @@ const Header: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* 🔸 Mobile Menu Panel */}
+      {isMenuOpen && (
+        <div
+          className={`md:hidden absolute top-full left-0 w-full backdrop-blur-lg shadow-lg animate-fadeIn transition-all duration-500 ${
+            isScrolled ? "bg-white/95" : "bg-slate-900/90"
+          }`}
+        >
+          <nav className="flex flex-col items-center py-6 space-y-4">
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`text-lg font-medium transition-all duration-300 ${
+                  location.pathname === item.path
+                    ? isScrolled
+                      ? "text-blue-600"
+                      : "text-cyan-400"
+                    : isScrolled
+                    ? "text-gray-700 hover:text-blue-600"
+                    : "text-gray-300 hover:text-white"
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
