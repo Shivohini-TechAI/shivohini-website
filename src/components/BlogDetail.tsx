@@ -17,7 +17,9 @@ interface Article {
 }
 
 const BlogDetail: React.FC = () => {
+  console.log('BlogDetail component mounted');
   const { id } = useParams<{ id: string }>();
+  console.log('BlogDetail id:', id);
   const navigate = useNavigate();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -54,9 +56,12 @@ const BlogDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="py-16 bg-gray-50 min-h-screen">
-        <div className="container mx-auto px-4">
-          <div className="text-center">Loading article...</div>
+      <section className="py-20 bg-gradient-to-br from-gray-900 to-blue-900 relative overflow-hidden min-h-screen">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
+            <p className="text-gray-300">Loading article...</p>
+          </div>
         </div>
       </section>
     );
@@ -64,50 +69,50 @@ const BlogDetail: React.FC = () => {
 
   if (error || !article) {
     return (
-      <section className="py-16 bg-gray-50 min-h-screen">
-        <div className="container mx-auto px-4">
-          <div className="text-center text-red-500">
-            {error || 'Article not found'}
+      <section className="py-20 bg-gradient-to-br from-gray-900 to-blue-900 relative overflow-hidden min-h-screen">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center">
+            <p className="text-red-400 mb-4">{error || 'Article not found'}</p>
+            <button
+              onClick={() => navigate('/')}
+              className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors font-semibold"
+            >
+              ← Back to Home
+            </button>
           </div>
-          <button
-            onClick={() => navigate('/')}
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-          >
-            Back to Home
-          </button>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="py-16 bg-gray-50 min-h-screen">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <section className="py-20 bg-gradient-to-br from-gray-900 to-blue-900 relative overflow-hidden min-h-screen">
+      <div className="container mx-auto px-4 max-w-4xl relative z-10">
         <button
           onClick={() => navigate('/')}
-          className="mb-6 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+          className="mb-8 bg-white/10 backdrop-blur-md text-white px-6 py-3 rounded-lg hover:bg-white/20 transition-all duration-300 font-semibold"
         >
           ← Back to Home
         </button>
 
-        <article className="bg-white rounded-lg shadow-md p-8">
+        <article className="bg-white/10 backdrop-blur-md rounded-3xl p-8">
           {/* Article Meta */}
-          <div className="text-sm text-gray-500 mb-4 flex flex-wrap items-center gap-4">
+          <div className="text-sm text-gray-300 mb-6 flex flex-wrap items-center gap-4">
             <span>{new Date(article.publishedAt || article.date).toLocaleDateString()}</span>
             {article.author && <span>By {article.author}</span>}
             {article.source?.name && <span>Source: {article.source.name}</span>}
           </div>
 
-          <h1 className="text-4xl font-bold mb-6">{article.title}</h1>
-          <p className="text-lg text-gray-600 mb-8">{article.description}</p>
+          <h1 className="text-4xl lg:text-5xl font-bold text-white mb-8">{article.title}</h1>
+          <p className="text-xl text-gray-200 mb-10 leading-relaxed">{article.description}</p>
 
           {/* Article Content */}
-          <div className="prose prose-base prose-slate max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed prose-a:text-blue-600 prose-a:hover:text-blue-800 prose-strong:text-gray-900 prose-ul:space-y-2 prose-ol:space-y-2 prose-li:text-gray-700 prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:p-4 prose-blockquote:rounded-r-lg">
+          <div className="prose prose-lg prose-slate max-w-none prose-headings:text-white prose-p:text-gray-200 prose-p:leading-relaxed prose-a:text-blue-400 prose-a:hover:text-blue-300 prose-strong:text-white prose-ul:space-y-2 prose-ol:space-y-2 prose-li:text-gray-200 prose-blockquote:border-l-4 prose-blockquote:border-blue-400 prose-blockquote:bg-blue-900/30 prose-blockquote:p-6 prose-blockquote:rounded-r-lg">
             {fullContentLoading && (
               <div className="text-center py-8">
                 <div className="inline-flex items-center">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
-                  <p className="text-gray-500">Loading full article content...</p>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mr-3"></div>
+                  <p className="text-gray-300">Loading full article content...</p>
                 </div>
               </div>
             )}
@@ -120,21 +125,21 @@ const BlogDetail: React.FC = () => {
                 <div dangerouslySetInnerHTML={{ __html: article.content }} />
               </div>
             ) : (
-              <p className="text-gray-700 leading-relaxed text-lg">{article.description}</p>
+              <p className="text-gray-200 leading-relaxed text-xl">{article.description}</p>
             )}
           </div>
 
           {/* Read Original Article Link */}
           {article.url && (
-            <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="mt-12 pt-8 border-t border-white/20">
               <a
                 href={article.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold"
+                className="inline-flex items-center text-blue-400 hover:text-blue-300 font-semibold text-lg"
               >
                 Read full article on {article.source?.name || 'source website'}
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>

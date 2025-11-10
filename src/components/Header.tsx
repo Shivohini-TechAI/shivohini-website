@@ -9,12 +9,30 @@ const Header: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navItems = ['Home', 'About Us', 'Products', 'Industries', 'Blog', 'Contact'];
+  const navItems = [
+    { name: "Home", path: "/" },
+    { name: "About Us", path: "/about-us" },
+    { name: "Solutions", path: "/solutions" },
+    { name: "Industries", path: "/industries" },
+    { name: "Careers", path: "/careers" },
+    { name: "Contact", path: "/contact" },
+    { name: "Blog", path: "/#blog" },
+  ];
+
+  const handleNavClick = (path: string) => {
+    if (path === "/#blog") {
+      // Scroll to blog section on home page
+      const blogElement = document.getElementById('blog');
+      if (blogElement) {
+        blogElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
     <header
@@ -24,65 +42,11 @@ const Header: React.FC = () => {
           : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo */}
-          <Link
-            to="/"
-            className="flex items-center space-x-2 group focus:outline-none focus:ring-0"
-          >
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center transform transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-lg active:scale-95">
-              <span className="text-white font-bold text-xl drop-shadow-lg">S</span>
-            </div>
-            <div className="text-xl lg:text-2xl font-bold transition-colors duration-300 group-hover:text-blue-600">
-              <span className="text-blue-600 group-hover:text-blue-700">Shivohoni</span>
-              <span className="text-gray-800 ml-1 group-hover:text-gray-900">TechAI</span>
-            </div>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8 relative">
-            {navItems.map((item) => (
-              <div
-                key={item}
-                className="relative"
-              >
-                <Link
-                  to={
-                    item === "Home"
-                      ? "/"
-                      : `/${item.toLowerCase().replace(" ", "-")}`
-                  }
-                  className={`relative font-medium transition-all duration-300 hover:text-blue-600 focus:outline-none focus:ring-0 ${
-                    activeSection.toLowerCase() ===
-                    item.toLowerCase().replace(" ", "-")
-                      ? "text-blue-600"
-                      : "text-gray-700"
-                  }`}
-                >
-                  {item}
-                </Link>
-              </div>
-            ))}
-          </nav>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-0"
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-
-        {/* Mobile Navigation */}
-        <div
-          className={`md:hidden fixed inset-0 z-[90] transition-opacity duration-300 ${
-            isMenuOpen
-              ? "opacity-100 pointer-events-auto"
-              : "opacity-0 pointer-events-none"
-          }`}
+      <div className="container mx-auto flex items-center justify-between px-6 py-4 transition-all duration-500">
+        {/* 🔹 Logo Section */}
+        <Link
+          to="/"
+          className="flex items-center gap-3 group transition-transform duration-300 hover:scale-105"
         >
           <div className="relative">
             <img
@@ -112,8 +76,9 @@ const Header: React.FC = () => {
             <Link
               key={item.path}
               to={item.path}
+              onClick={() => handleNavClick(item.path)}
               className={`relative text-lg font-medium transition-all duration-300 ${
-                location.pathname === item.path
+                location.pathname === item.path || (item.path === "/#blog" && location.pathname === "/" && location.hash === "#blog")
                   ? isScrolled
                     ? "text-blue-600"
                     : "text-white"
@@ -123,7 +88,7 @@ const Header: React.FC = () => {
               }`}
             >
               {item.name}
-              {location.pathname === item.path && (
+              {(location.pathname === item.path || (item.path === "/#blog" && location.pathname === "/" && location.hash === "#blog")) && (
                 <span
                   className={`absolute left-1/2 -bottom-2 w-3/5 h-[3px] rounded-full transform -translate-x-1/2 shadow-[0_0_10px_rgba(59,130,246,0.8)] animate-pulse ${
                     isScrolled
@@ -136,25 +101,15 @@ const Header: React.FC = () => {
           ))}
         </nav>
 
-            <nav className="space-y-3">
-              {navItems.map((item) => (
-                <div key={item}>
-                  <Link
-                    to={
-                      item === "Home"
-                        ? "/"
-                        : `/${item.toLowerCase().replace(" ", "-")}`
-                    }
-                    className="w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex justify-between items-center transition-all duration-300 focus:outline-none focus:ring-0"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {item}
-                  </Link>
-                </div>
-              ))}
-            </nav>
-          </div>
-        </div>
+        {/* 🔸 Mobile Menu Button */}
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className={`md:hidden focus:outline-none transition-colors duration-500 ${
+            isScrolled ? "text-slate-900" : "text-white"
+          }`}
+        >
+          {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
       </div>
 
       {/* 🔸 Mobile Menu Panel */}
@@ -170,7 +125,7 @@ const Header: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 className={`text-lg font-medium transition-all duration-300 ${
-                  location.pathname === item.path
+                  location.pathname === item.path || (item.path === "/#blog" && location.pathname === "/" && location.hash === "#blog")
                     ? isScrolled
                       ? "text-blue-600"
                       : "text-cyan-400"
@@ -178,7 +133,10 @@ const Header: React.FC = () => {
                     ? "text-gray-700 hover:text-blue-600"
                     : "text-gray-300 hover:text-white"
                 }`}
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  handleNavClick(item.path);
+                  setIsMenuOpen(false);
+                }}
               >
                 {item.name}
               </Link>
