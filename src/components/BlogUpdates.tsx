@@ -7,10 +7,16 @@ interface Article {
   description: string;
   content: string;
   url?: string;
+  source?: {
+    name: string;
+  };
+  urlToImage?: string;
 }
 
 const DailyBlogUpdates = () => {
   const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [clickedArticles, setClickedArticles] = useState<Set<number>>(new Set());
   const navigate = useNavigate();
@@ -70,33 +76,62 @@ const DailyBlogUpdates = () => {
   };
 
   useEffect(() => {
-    // Static blog articles based on company categories
+    // Static blog articles focused on IT, Computer, AI Tech Industry
     const staticArticles: Article[] = [
       {
         date: new Date().toISOString().split('T')[0],
-        title: "New AI-Powered Analytics Tool Launch",
-        description: "We're excited to announce the launch of our latest AI-powered analytics tool, designed to revolutionize data processing for enterprises.",
-        content: "This new tool leverages machine learning algorithms to provide real-time insights, improving decision-making processes across industries. Key features include automated data cleaning, predictive modeling, and intuitive dashboards.",
+        title: "The Future of Artificial Intelligence in Enterprise Solutions",
+        description: "Exploring how AI is transforming business operations and decision-making processes across industries.",
+        content: "Artificial Intelligence is revolutionizing the way enterprises operate. From predictive analytics to automated decision-making, AI technologies are enabling businesses to process vast amounts of data at unprecedented speeds. Machine learning algorithms can now identify patterns and trends that were previously invisible to human analysts. Key areas of impact include customer service automation, supply chain optimization, and risk assessment. As AI continues to evolve, we're seeing the emergence of more sophisticated applications like natural language processing, computer vision, and generative AI models. The integration of AI into enterprise systems requires careful consideration of ethical implications, data privacy, and workforce transformation. Companies that successfully adopt AI technologies are gaining significant competitive advantages through improved efficiency, reduced costs, and enhanced customer experiences.",
         url: "/blog/0"
       },
       {
         date: new Date(Date.now() - 86400000).toISOString().split('T')[0], // Yesterday
-        title: "Achieving Carbon Neutrality: Our Journey",
-        description: "Milestone update on our sustainability initiatives, including recent achievements in reducing carbon footprint.",
-        content: "Over the past year, we've implemented green technologies in our data centers, resulting in a 40% reduction in energy consumption. This includes solar panel installations and advanced cooling systems.",
+        title: "Cloud Computing: Revolutionizing IT Infrastructure",
+        description: "How cloud technologies are reshaping IT infrastructure and enabling scalable, cost-effective solutions.",
+        content: "Cloud computing has fundamentally changed the IT landscape. Traditional on-premises data centers are being replaced by scalable, pay-as-you-go cloud services that offer unprecedented flexibility and cost efficiency. Major cloud providers like AWS, Azure, and Google Cloud offer a comprehensive suite of services including Infrastructure as a Service (IaaS), Platform as a Service (PaaS), and Software as a Service (SaaS). The benefits of cloud adoption include reduced capital expenditures, improved scalability, enhanced security, and faster deployment times. Multi-cloud and hybrid cloud strategies are becoming increasingly popular as organizations seek to avoid vendor lock-in and optimize their IT investments. However, successful cloud migration requires careful planning, including data migration strategies, security considerations, and staff training. The future of cloud computing looks promising with the emergence of edge computing, serverless architectures, and AI-powered cloud management tools.",
         url: "/blog/1"
       },
       {
         date: new Date(Date.now() - 172800000).toISOString().split('T')[0], // Day before yesterday
-        title: "Blockchain in Supply Chain: A Case Study",
-        description: "How our blockchain solution improved transparency and efficiency for a major logistics client.",
-        content: "By integrating blockchain technology, our client saw a 30% increase in supply chain visibility and a significant reduction in fraud. The decentralized ledger ensures tamper-proof records from production to delivery.",
+        title: "Cybersecurity in the Digital Age: Protecting Critical Assets",
+        description: "Essential strategies for safeguarding digital assets in an increasingly connected and threat-filled environment.",
+        content: "As digital transformation accelerates, cybersecurity has become a critical concern for organizations worldwide. The proliferation of connected devices, cloud services, and remote work has expanded the attack surface significantly. Common threats include ransomware, phishing attacks, data breaches, and supply chain vulnerabilities. Effective cybersecurity requires a multi-layered approach that includes network security, endpoint protection, identity and access management, and security awareness training. Advanced technologies like AI-powered threat detection, zero-trust architectures, and blockchain-based security solutions are helping organizations stay ahead of evolving threats. Regulatory compliance, such as GDPR and CCPA, adds another layer of complexity to cybersecurity management. Organizations must invest in robust security frameworks, regular vulnerability assessments, and incident response planning. The human element remains crucial, with employee training and awareness programs playing a vital role in preventing security incidents. As cyber threats continue to evolve, proactive security measures and continuous monitoring are essential for protecting critical digital assets.",
         url: "/blog/2"
       }
     ];
 
     setArticles(staticArticles);
+    setLoading(false);
   }, []);
+
+  if (loading) {
+    return (
+      <section id="blog" className="p-6">
+        <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 text-center">
+          Latest <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600">Blog Updates</span>
+        </h2>
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <span className="ml-4 text-gray-600">Loading latest news...</span>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section id="blog" className="p-6">
+        <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 text-center">
+          Latest <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600">Blog Updates</span>
+        </h2>
+        <div className="text-center py-12">
+          <p className="text-red-600 mb-4">Failed to load news: {error}</p>
+          <p className="text-gray-600">Showing fallback content...</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="blog" className="p-6">
