@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 
 import Product from "./models/product.js";
 import Industry from "./models/industry.js";
+import Job from "./models/job.js";
 
 dotenv.config();
 
@@ -22,70 +23,6 @@ const products = [
     features: ["Natural Language Understanding", "24/7 Support", "Analytics Dashboard"],
     color: "from-blue-500 to-blue-600",
     bgColor: "from-blue-50 to-blue-100"
-  },
-  {
-    title: "Face Recognition System",
-    description: "Advanced facial recognition for security and authentication.",
-    icon: "FaceIcon",
-    features: ["Real-time Detection", "High Accuracy", "Security Integration", "Privacy Compliant"],
-    color: "from-indigo-500 to-indigo-600",
-    bgColor: "from-indigo-50 to-indigo-100"
-  },
-  {
-    title: "Face Recognition System",
-    description: "Advanced facial recognition for security and authentication.",
-    icon: "FaceIcon",
-    features: ["Real-time Detection", "High Accuracy", "Security Integration", "Privacy Compliant"],
-    color: "from-indigo-500 to-indigo-600",
-    bgColor: "from-indigo-50 to-indigo-100"
-  },
-  {
-    title: "Face Recognition System",
-    description: "Advanced facial recognition for security and authentication.",
-    icon: "FaceIcon",
-    features: ["Real-time Detection", "High Accuracy", "Security Integration", "Privacy Compliant"],
-    color: "from-indigo-500 to-indigo-600",
-    bgColor: "from-indigo-50 to-indigo-100"
-  },
-  {
-    title: "Face Recognition System",
-    description: "Advanced facial recognition for security and authentication.",
-    icon: "FaceIcon",
-    features: ["Real-time Detection", "High Accuracy", "Security Integration", "Privacy Compliant"],
-    color: "from-indigo-500 to-indigo-600",
-    bgColor: "from-indigo-50 to-indigo-100"
-  },
-  {
-    title: "Face Recognition System",
-    description: "Advanced facial recognition for security and authentication.",
-    icon: "FaceIcon",
-    features: ["Real-time Detection", "High Accuracy", "Security Integration", "Privacy Compliant"],
-    color: "from-indigo-500 to-indigo-600",
-    bgColor: "from-indigo-50 to-indigo-100"
-  },
-  {
-    title: "Face Recognition System",
-    description: "Advanced facial recognition for security and authentication.",
-    icon: "FaceIcon",
-    features: ["Real-time Detection", "High Accuracy", "Security Integration", "Privacy Compliant"],
-    color: "from-indigo-500 to-indigo-600",
-    bgColor: "from-indigo-50 to-indigo-100"
-  },
-  {
-    title: "Face Recognition System",
-    description: "Advanced facial recognition for security and authentication.",
-    icon: "FaceIcon",
-    features: ["Real-time Detection", "High Accuracy", "Security Integration", "Privacy Compliant"],
-    color: "from-indigo-500 to-indigo-600",
-    bgColor: "from-indigo-50 to-indigo-100"
-  },
-  {
-    title: "Face Recognition System",
-    description: "Advanced facial recognition for security and authentication.",
-    icon: "FaceIcon",
-    features: ["Real-time Detection", "High Accuracy", "Security Integration", "Privacy Compliant"],
-    color: "from-indigo-500 to-indigo-600",
-    bgColor: "from-indigo-50 to-indigo-100"
   },
   {
     title: "Face Recognition System",
@@ -124,54 +61,6 @@ const industries = [
     bgGradient: "from-red-50 to-red-100"
   },
   {
-    title: "Restaurant",
-    description: "Intelligent restaurant solutions including order management.",
-    icon: "UtensilsIcon",
-    solutions: ["Menu Optimization", "Order Management", "Kitchen Automation", "Customer Analytics"],
-    color: "from-red-500 to-red-600",
-    bgGradient: "from-red-50 to-red-100"
-  },
-  {
-    title: "Restaurant",
-    description: "Intelligent restaurant solutions including order management.",
-    icon: "UtensilsIcon",
-    solutions: ["Menu Optimization", "Order Management", "Kitchen Automation", "Customer Analytics"],
-    color: "from-red-500 to-red-600",
-    bgGradient: "from-red-50 to-red-100"
-  },
-  {
-    title: "Restaurant",
-    description: "Intelligent restaurant solutions including order management.",
-    icon: "UtensilsIcon",
-    solutions: ["Menu Optimization", "Order Management", "Kitchen Automation", "Customer Analytics"],
-    color: "from-red-500 to-red-600",
-    bgGradient: "from-red-50 to-red-100"
-  },
-  {
-    title: "Restaurant",
-    description: "Intelligent restaurant solutions including order management.",
-    icon: "UtensilsIcon",
-    solutions: ["Menu Optimization", "Order Management", "Kitchen Automation", "Customer Analytics"],
-    color: "from-red-500 to-red-600",
-    bgGradient: "from-red-50 to-red-100"
-  },
-  {
-    title: "Restaurant",
-    description: "Intelligent restaurant solutions including order management.",
-    icon: "UtensilsIcon",
-    solutions: ["Menu Optimization", "Order Management", "Kitchen Automation", "Customer Analytics"],
-    color: "from-red-500 to-red-600",
-    bgGradient: "from-red-50 to-red-100"
-  },
-  {
-    title: "Restaurant",
-    description: "Intelligent restaurant solutions including order management.",
-    icon: "UtensilsIcon",
-    solutions: ["Menu Optimization", "Order Management", "Kitchen Automation", "Customer Analytics"],
-    color: "from-red-500 to-red-600",
-    bgGradient: "from-red-50 to-red-100"
-  },
-  {
     title: "Supermarket",
     description: "Smart retail solutions with inventory management.",
     icon: "ShoppingCartIcon",
@@ -181,13 +70,24 @@ const industries = [
   }
 ];
 
+const Jobs = [{
+  title: "Ai Engineer",
+  location: "pune",
+  type: "Full time", // e.g., Full-time, Internship
+  description: "Good enviroment",
+  applyLink: "www.com",
+  postedAt: Date.now()
+}];
+
 const seedData = async () => {
   try {
     await Product.deleteMany({});
     await Industry.deleteMany({});
+    await Job.deleteMany({});
 
     await Product.insertMany(products);
     await Industry.insertMany(industries);
+    await Job.insertMany(Jobs);
 
     console.log("Seed data inserted successfully!");
     mongoose.connection.close();

@@ -1,14 +1,15 @@
 import React from 'react';
-import { 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Globe, 
-  Facebook, 
-  Twitter, 
-  Linkedin, 
+import { Link } from "react-router-dom";
+import logo from '../assets/logo.png';
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Globe,
+  Facebook,
+  Twitter,
+  Linkedin,
   Instagram,
-  Brain,
   ArrowUp
 } from 'lucide-react';
 
@@ -19,10 +20,14 @@ const Footer: React.FC = () => {
 
   const footerLinks = {
     company: [
-      { name: 'About Us', href: '#about-us' },
-      { name: 'Our Team', href: '#team' },
-      { name: 'Careers', href: '#careers' },
-      { name: 'News & Media', href: '#news' }
+
+      { name: "About Us", href: "/about-us" },
+      { name: "Solutions", href: "/solutions" },
+      { name: "Industries", href: "/industries" },
+      { name: "Careers", href: "/careers" },
+      { name: "Contact", href: "/contact" },
+
+
     ],
     services: [
       { name: 'AI Agent', href: '#products' },
@@ -68,9 +73,14 @@ const Footer: React.FC = () => {
             {/* Company Info */}
             <div className="lg:col-span-2">
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
-                  <Brain className="w-6 h-6 text-white" />
-                </div>
+                <Link to = "/">
+                <img
+                  src={logo}
+                  alt="Shivohini TechAI Logo"
+                  className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain"
+                />
+                </Link>
+
                 <div>
                   <h3 className="text-2xl font-bold">
                     <span className="text-blue-400">Shivohoni</span>
@@ -78,10 +88,10 @@ const Footer: React.FC = () => {
                   </h3>
                 </div>
               </div>
-              
+
               <p className="text-gray-300 mb-6 leading-relaxed">
-                Transforming businesses through innovative AI solutions. 
-                We make intelligent technology accessible and practical for 
+                Transforming businesses through innovative AI solutions.
+                We make intelligent technology accessible and practical for
                 organizations of all sizes.
               </p>
 
@@ -91,20 +101,20 @@ const Footer: React.FC = () => {
                   <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center group-hover:bg-blue-600/40 transition-colors duration-300">
                     <Mail className="w-5 h-5 text-blue-400" />
                   </div>
-                  <a 
-                    href="mailto:bhatiagunjan27@gmail.com" 
+                  <a
+                    href="mailto:bhatiagunjan27@gmail.com"
                     className="text-gray-300 hover:text-blue-400 transition-colors duration-300"
                   >
                     bhatiagunjan27@gmail.com
                   </a>
                 </div>
-                
+
                 <div className="flex items-center space-x-3 group">
                   <div className="w-10 h-10 bg-green-600/20 rounded-lg flex items-center justify-center group-hover:bg-green-600/40 transition-colors duration-300">
                     <Phone className="w-5 h-5 text-green-400" />
                   </div>
-                  <a 
-                    href="tel:+917688929473" 
+                  <a
+                    href="tel:+917688929473"
                     className="text-gray-300 hover:text-green-400 transition-colors duration-300"
                   >
                     +91-7688929473
@@ -145,7 +155,7 @@ const Footer: React.FC = () => {
               <ul className="space-y-3">
                 {footerLinks.company.map((link, index) => (
                   <li key={index}>
-                    <a 
+                    <a
                       href={link.href}
                       className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-1 transform inline-block"
                     >
@@ -162,7 +172,7 @@ const Footer: React.FC = () => {
               <ul className="space-y-3">
                 {footerLinks.services.map((link, index) => (
                   <li key={index}>
-                    <a 
+                    <a
                       href={link.href}
                       className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-1 transform inline-block"
                     >
@@ -179,7 +189,7 @@ const Footer: React.FC = () => {
               <ul className="space-y-3">
                 {footerLinks.industries.map((link, index) => (
                   <li key={index}>
-                    <a 
+                    <a
                       href={link.href}
                       className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-1 transform inline-block"
                     >
@@ -196,7 +206,7 @@ const Footer: React.FC = () => {
               <ul className="space-y-3">
                 {footerLinks.support.map((link, index) => (
                   <li key={index}>
-                    <a 
+                    <a
                       href={link.href}
                       className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-1 transform inline-block"
                     >
@@ -217,7 +227,7 @@ const Footer: React.FC = () => {
                 <h4 className="text-xl font-semibold mb-2">Stay Updated</h4>
                 <p className="text-gray-400">Get the latest AI insights and updates delivered to your inbox.</p>
               </div>
-              
+
               <div className="flex w-full md:w-auto">
                 <input
                   type="email"
@@ -237,11 +247,11 @@ const Footer: React.FC = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="flex flex-col md:flex-row items-center justify-between">
               <p className="text-gray-400 text-sm mb-4 md:mb-0">
-                © 2025 Shivohoni TechAI. All rights reserved. | 
-                <a href="#privacy" className="hover:text-blue-400 transition-colors duration-300 ml-1">Privacy Policy</a> | 
+                © 2025 Shivohoni TechAI. All rights reserved. |
+                <a href="#privacy" className="hover:text-blue-400 transition-colors duration-300 ml-1">Privacy Policy</a> |
                 <a href="#terms" className="hover:text-blue-400 transition-colors duration-300 ml-1">Terms of Service</a>
               </p>
-              
+
               {/* Back to Top Button */}
               <button
                 onClick={scrollToTop}

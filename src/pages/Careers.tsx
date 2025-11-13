@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface Job {
   _id: string;
@@ -117,13 +118,14 @@ const Careers: React.FC = () => {
                   <p className="text-gray-300 text-sm mb-4 group-hover:text-gray-200 transition-colors duration-300">
                     {job.description}
                   </p>
-
+                  <Link to ="/">
                   <button className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-5 py-2 rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all duration-300">
                     Apply Now
                   </button>
+                  </Link>
 
                   {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 rounded-3xl transition-opacity duration-500" />
+                  
                 </div>
               );
             })}
