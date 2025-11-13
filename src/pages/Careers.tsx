@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Job {
   _id: string;
@@ -16,6 +17,7 @@ const Careers: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [hoveredJob, setHoveredJob] = useState<string | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const itemsPerSlide = 3; // Number of cards per view
   const totalSlides = Math.ceil(jobs.length / itemsPerSlide);
@@ -44,6 +46,10 @@ const Careers: React.FC = () => {
   const getCurrentJobs = () => {
     const start = currentSlide * itemsPerSlide;
     return jobs.slice(start, start + itemsPerSlide);
+  };
+
+  const handleApplyClick = (jobId: string) => {
+    navigate(`/apply/${jobId}`);
   };
 
   if (loading) {
@@ -118,7 +124,10 @@ const Careers: React.FC = () => {
                     {job.description}
                   </p>
 
-                  <button className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-5 py-2 rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all duration-300">
+                  <button
+                    onClick={() => handleApplyClick(job._id)}
+                    className="relative z-20 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-5 py-2 rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all duration-300"
+                  >
                     Apply Now
                   </button>
 
