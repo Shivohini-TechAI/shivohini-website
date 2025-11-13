@@ -25,6 +25,27 @@ const BlogDetail: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [fullContentLoading, setFullContentLoading] = useState<boolean>(false);
+  const [articles, setArticles] = useState<Article[]>([]);
+
+  // Function to format date as Today, Yesterday, or Day before yesterday
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    const dayBeforeYesterday = new Date(today);
+    dayBeforeYesterday.setDate(today.getDate() - 2);
+
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    } else if (date.toDateString() === dayBeforeYesterday.toDateString()) {
+      return 'Day before yesterday';
+    } else {
+      return date.toLocaleDateString();
+    }
+  };
 
   useEffect(() => {
     // Load articles from localStorage
@@ -45,14 +66,143 @@ const BlogDetail: React.FC = () => {
       }
     }
 
+    setArticles(articles);
     const articleIndex = parseInt(id || '0');
     if (articles[articleIndex]) {
-      setArticle(articles[articleIndex]);
+      const selectedArticle = articles[articleIndex];
+      setArticle(selectedArticle);
+
+      // Fetch full content from the article URL if available
+      if (selectedArticle.url) {
+        fetchFullArticleContent(selectedArticle.url);
+      }
     } else {
       setError('Article not found');
     }
     setLoading(false);
   }, [id]);
+
+  // Function to fetch full article content from URL
+  const fetchFullArticleContent = async (url: string) => {
+    setFullContentLoading(true);
+    try {
+      // Try multiple CORS proxies in order of preference
+      const proxies = [
+        'https://cors-anywhere.herokuapp.com/',
+        'https://api.codetabs.com/v1/proxy?quest=',
+        'https://thingproxy.freeboard.io/fetch/'
+      ];
+
+      let data: { contents: string } | null = null;
+      let success = false;
+
+      for (const proxy of proxies) {
+        try {
+          const proxyUrl = `${proxy}${url}`;
+          const response = await fetch(proxyUrl);
+
+          if (response.ok) {
+            const responseText = await response.text();
+            data = { contents: responseText };
+            success = true;
+            break;
+          }
+        } catch (proxyError) {
+          console.warn(`Proxy ${proxy} failed:`, proxyError);
+          continue;
+        }
+      }
+
+      if (!success) {
+        throw new Error('All CORS proxies failed');
+      }
+
+      if (data && data.contents) {
+        // Extract text content from HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data.contents, 'text/html');
+
+        // Remove scripts, styles, and unwanted elements
+        const scripts = doc.querySelectorAll('script, style, nav, header, footer, aside, .ad, .advertisement, .sidebar');
+        scripts.forEach(element => element.remove());
+
+        // Try to find main content areas
+        const contentSelectors = [
+          'article',
+          '[data-testid="article-body"]',
+          '.article-body',
+          '.post-content',
+          '.entry-content',
+          '.content',
+          'main',
+          '.story-body',
+          '.article-content'
+        ];
+
+        let mainContent = '';
+        for (const selector of contentSelectors) {
+          const element = doc.querySelector(selector);
+          if (element && element.textContent && element.textContent.length > 200) {
+            mainContent = element.textContent;
+            break;
+          }
+        }
+
+        // Fallback to body content if no specific content area found
+        if (!mainContent) {
+          const body = doc.querySelector('body');
+          if (body) {
+            mainContent = body.textContent || '';
+          }
+        }
+
+        // Clean up the content
+        mainContent = mainContent
+          .replace(/\s+/g, ' ')
+          .replace(/\n\s*\n/g, '\n')
+          .trim();
+
+        // Split into paragraphs and filter out short/empty ones
+        const paragraphs = mainContent
+          .split('\n')
+          .map(p => p.trim())
+          .filter(p => p.length > 30); // Lower threshold to capture more content
+
+        // Collect all chunks from all paragraphs
+        const allChunks = [];
+        for (const p of paragraphs) {
+          const sentences = p.split(/[.!?]+/).filter(s => s.trim().length > 10);
+          for (let i = 0; i < sentences.length; i += 2) {
+            allChunks.push(sentences.slice(i, i + 2).join('. ').trim() + (i + 2 < sentences.length ? '.' : ''));
+          }
+        }
+
+        // Limit to 10 chunks total
+        const limitedChunks = allChunks.slice(0, 10);
+
+        if (limitedChunks.length > 0) {
+          const paragraphContent = limitedChunks.map(chunk => `<p style="color: white; margin: 0 0 1em 0; line-height: 1.8; font-size: 1em; font-weight: 400; text-align: justify;">${chunk}</p>`).join('');
+
+          const fullContent = `
+            <div style="margin-bottom: 2.5em; padding: 2em; background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%); border-radius: 16px; border-left: 5px solid #3b82f6; box-shadow: 0 8px 32px rgba(0,0,0,0.3); position: relative; overflow: hidden;">
+              <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #3b82f6, #06b6d4, #3b82f6);"></div>
+              <div style="padding-top: 0.5em;">
+                ${paragraphContent}
+              </div>
+              <div style="position: absolute; bottom: -10px; right: -10px; width: 40px; height: 40px; background: #3b82f6; border-radius: 50%; opacity: 0.1;"></div>
+            </div>
+          `;
+          setArticle(prev => prev ? { ...prev, fullContent } : null);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching full article content:', error);
+      // Gracefully handle CORS errors - don't show error to user, just log it
+      // The component will fall back to showing the basic article content
+    } finally {
+      setFullContentLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -87,24 +237,42 @@ const BlogDetail: React.FC = () => {
 
   return (
     <section className="py-20 bg-gradient-to-br from-gray-900 to-blue-900 relative overflow-hidden min-h-screen">
-      <div className="container mx-auto px-4 max-w-4xl relative z-10">
+      <div className="container mx-auto px-4 max-w-3xl relative z-10">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/blog')}
           className="mb-8 bg-white/10 backdrop-blur-md text-white px-6 py-3 rounded-lg hover:bg-white/20 transition-all duration-300 font-semibold"
         >
-          ← Back to Home
+          ← Back to Blog Updates
         </button>
 
         <article className="bg-white/10 backdrop-blur-md rounded-3xl p-8">
           {/* Article Meta */}
           <div className="text-sm text-gray-300 mb-6 flex flex-wrap items-center gap-4">
             <span>{new Date(article.publishedAt || article.date).toLocaleDateString()}</span>
-            {article.author && <span>By {article.author}</span>}
-            {article.source?.name && <span>Source: {article.source.name}</span>}
           </div>
 
-          <h1 className="text-4xl lg:text-5xl font-bold text-white mb-8">{article.title}</h1>
-          <p className="text-xl text-gray-200 mb-10 leading-relaxed">{article.description}</p>
+          {/* Article Image */}
+          {article.urlToImage && (
+            <div className="mb-8">
+              <img
+                src={article.urlToImage}
+                alt={article.title}
+                className="w-full h-64 md:h-80 object-cover rounded-2xl"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
+          )}
+
+          <h1 className="text-4xl lg:text-5xl font-bold mb-8 text-blue-400">{article.title}</h1>
+
+          {/* Full Article Content */}
+          {article.content && article.content.length > 100 && (
+            <div className="text-white leading-relaxed text-lg mb-8">
+              {article.content}
+            </div>
+          )}
 
           {/* Article Content */}
           <div className="prose prose-lg prose-slate max-w-none prose-headings:text-white prose-p:text-gray-200 prose-p:leading-relaxed prose-a:text-blue-400 prose-a:hover:text-blue-300 prose-strong:text-white prose-ul:space-y-2 prose-ol:space-y-2 prose-li:text-gray-200 prose-blockquote:border-l-4 prose-blockquote:border-blue-400 prose-blockquote:bg-blue-900/30 prose-blockquote:p-6 prose-blockquote:rounded-r-lg">
@@ -129,22 +297,7 @@ const BlogDetail: React.FC = () => {
             )}
           </div>
 
-          {/* Read Original Article Link */}
-          {article.url && (
-            <div className="mt-12 pt-8 border-t border-white/20">
-              <a
-                href={article.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center text-blue-400 hover:text-blue-300 font-semibold text-lg"
-              >
-                Read full article on {article.source?.name || 'source website'}
-                <svg className="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
-            </div>
-          )}
+
         </article>
       </div>
     </section>

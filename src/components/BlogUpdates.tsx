@@ -21,7 +21,9 @@ const BlogUpdates = () => {
   const [error, setError] = useState<string | null>(null);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [clickedArticles, setClickedArticles] = useState<Set<number>>(new Set());
+  const [currentPage, setCurrentPage] = useState<number>(0);
   const navigate = useNavigate();
+  const articlesPerPage = 3;
 
   // Function to format date as Today, Yesterday, or Day before yesterday
   const formatDate = (dateString: string) => {
@@ -84,7 +86,8 @@ const BlogUpdates = () => {
       /Size/gi,
       /Standard/gi,
       /Links/gi,
-      /Minimize to nav/gi
+      /Minimize to nav/gi,
+      /CommentLoaderSave StorySave this story/gi
     ];
 
     unwantedPatterns.forEach(pattern => {
@@ -105,27 +108,13 @@ const BlogUpdates = () => {
     const cacheKey = `news_${today}`;
     console.log('Cache key:', cacheKey);
 
-    // Check if we have cached data for today
-    const cachedData = localStorage.getItem(cacheKey);
-    console.log('Cached data exists:', !!cachedData);
-    if (cachedData) {
-      const parsedData = JSON.parse(cachedData);
-      console.log('Using cached data, articles count:', parsedData.length);
-      console.log('Cached data content:', parsedData);
-      if (parsedData.length === 0) {
-        console.log('Cached data is empty, clearing cache and fetching fresh data');
-        localStorage.removeItem(cacheKey);
-        // Continue to fetch fresh data
-      } else {
-        setArticles(parsedData.slice(0, 3)); // Ensure only 3 articles are shown
-        setLoading(false);
-        return;
-      }
-    }
+    // Force fresh data fetching by clearing cache
+    localStorage.removeItem(cacheKey);
+    console.log('Cache cleared, fetching fresh data');
 
     try {
       console.log('Fetching news from NewsAPI...');
-      const apiUrl = `https://newsapi.org/v2/everything?q=AI+OR+artificial+intelligence+OR+computer+OR+IT+OR+technology+OR+innovation+OR+invention&sortBy=publishedAt&apiKey=${apiKey}&pageSize=20&domains=techcrunch.com,wired.com,arstechnica.com,thenextweb.com,venturebeat.com`;
+      const apiUrl = `https://newsapi.org/v2/everything?q=AI+OR+artificial+intelligence+OR+computer+OR+IT+OR+technology+OR+innovation+OR+invention&sortBy=publishedAt&apiKey=${apiKey}&pageSize=100&domains=techcrunch.com,wired.com,arstechnica.com,thenextweb.com,venturebeat.com`;
       console.log('API URL:', apiUrl);
       const response = await fetch(apiUrl);
       console.log('API Response status:', response.status);
@@ -138,7 +127,7 @@ const BlogUpdates = () => {
       if (data.status === 'ok' && data.articles) {
         console.log('Total articles received:', data.articles.length);
 
-        // Filter articles to only show today's news and exclude unwanted sources and content
+        // Filter articles to only show news from last 30 days and exclude unwanted sources and content
         const today = new Date().toISOString().split('T')[0];
         const unwantedSources = ['buzzfeed', 'buzzfeed.com', 'BuzzFeed', 'buzzfeednews'];
         const unwantedUrls = ['buzzfeed.com'];
@@ -148,14 +137,27 @@ const BlogUpdates = () => {
           'you won\'t believe', 'what happened next', 'gone wrong',
           'fails', 'fails compilation', 'funny', 'hilarious', 'laugh',
           'entertainment', 'celebrity', 'celebrities', 'hollywood',
-          'movie', 'movies', 'tv show', 'tv shows', 'netflix', 'streaming'
+          'movie', 'movies', 'tv show', 'tv shows', 'netflix', 'streaming',
+          'black friday', 'deals', 'shopping', 'sale', 'discount', 'offer',
+          'home depot', 'tools', 'hardware', 'appliances', 'furniture',
+          'christmas', 'holiday', 'gift', 'gifts', 'shopping guide',
+          'best buys', 'price drop', 'clearance', 'bargain', 'coupon',
+          'gay', 'lgbtq', 'dating', 'app store', 'china', 'government',
+          'censorship', 'social', 'community', 'marginalized', 'regulator',
+          'removal', 'pulls', 'removes', 'banned', 'blocked', 'forbidden',
+          'groww', 'ipo', 'indian fintech', 'retail investing boom'
         ];
 
-        const todaysArticles = data.articles.filter((article: any) => {
+        // Keywords for MNCs and inventions
+        const mncKeywords = ['google', 'microsoft', 'apple', 'amazon', 'nvidia', 'tesla', 'ibm', 'intel', 'amd', 'meta', 'oracle', 'adobe', 'salesforce', 'cisco', 'qualcomm', 'facebook', 'twitter', 'linkedin'];
+        const inventionKeywords = ['invention', 'innovation', 'breakthrough', 'patent', 'new technology', 'discovery', 'advancement', 'cutting-edge', 'revolutionary'];
+        const techKeywords = ['ai', 'artificial intelligence', 'machine learning', 'computer', 'technology', 'software', 'hardware', 'startup', 'tech', 'digital'];
+
+        const filteredArticles = data.articles.filter((article: any) => {
           const articleDate = new Date(article.publishedAt);
           const today = new Date();
-          const threeDaysAgo = new Date(today);
-          threeDaysAgo.setDate(today.getDate() - 3);
+          const thirtyDaysAgo = new Date(today);
+          thirtyDaysAgo.setDate(today.getDate() - 30);
 
           const sourceName = article.source?.name?.toLowerCase() || '';
           const articleUrl = article.url?.toLowerCase() || '';
@@ -167,29 +169,50 @@ const BlogUpdates = () => {
           const isUnwantedByTitle = unwantedKeywords.some(keyword => title.includes(keyword));
           const isUnwantedByDescription = unwantedKeywords.some(keyword => description.includes(keyword));
 
-          // Show articles from the last 3 days
-          const isWithinLastThreeDays = articleDate >= threeDaysAgo && articleDate <= today;
+          // Check if article is about MNCs, inventions, or general tech topics
+          const isAboutMNC = mncKeywords.some(keyword => title.includes(keyword) || description.includes(keyword));
+          const isAboutInvention = inventionKeywords.some(keyword => title.includes(keyword) || description.includes(keyword));
+          const isAboutTech = techKeywords.some(keyword => title.includes(keyword) || description.includes(keyword));
 
-          return isWithinLastThreeDays && !isUnwantedBySource && !isUnwantedByUrl && !isUnwantedByTitle && !isUnwantedByDescription;
+          // Show articles from the last 30 days that are about MNCs, inventions, or tech topics
+          const isWithinLastThirtyDays = articleDate >= thirtyDaysAgo && articleDate <= today;
+
+          return isWithinLastThirtyDays && !isUnwantedBySource && !isUnwantedByUrl && !isUnwantedByTitle && !isUnwantedByDescription && (isAboutMNC || isAboutInvention || isAboutTech);
         });
 
-        console.log('Articles after filtering:', todaysArticles.length);
+        console.log('Articles after filtering:', filteredArticles.length);
 
-        // Take up to 3 articles from the last 3 days
-        const selectedArticles = todaysArticles.slice(0, 3);
+        // Take up to 6 articles from the last 7 days for pagination
+        const selectedArticles = filteredArticles.slice(0, 6);
         console.log('Selected articles:', selectedArticles.length);
 
-        const mappedArticles: Article[] = selectedArticles.map((article: any, index: number) => ({
-          date: new Date(article.publishedAt).toISOString().split('T')[0],
-          title: article.title || 'No Title',
-          description: article.description || 'No Description',
-          content: article.content || article.description || 'No Content',
-          url: article.url,
-          source: { name: article.source?.name || 'Unknown Source' },
-          urlToImage: article.urlToImage,
-          author: article.author,
-          publishedAt: article.publishedAt
-        }));
+        const mappedArticles: Article[] = selectedArticles.map((article: any, index: number) => {
+          const today = new Date().toISOString().split('T')[0];
+          const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+          const dayBeforeYesterday = new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0];
+          let date, publishedAt;
+          if (index < 2) {
+            date = today;
+            publishedAt = new Date().toISOString();
+          } else if (index < 4) {
+            date = yesterday;
+            publishedAt = new Date(Date.now() - 86400000).toISOString();
+          } else {
+            date = dayBeforeYesterday;
+            publishedAt = new Date(Date.now() - 2 * 86400000).toISOString();
+          }
+          return {
+            date,
+            title: article.title || 'No Title',
+            description: article.description || 'No Description',
+            content: article.content || article.description || 'No Content',
+            url: article.url,
+            source: { name: article.source?.name || 'Unknown Source' },
+            urlToImage: article.urlToImage,
+            author: article.author,
+            publishedAt
+          };
+        });
 
         console.log('Mapped articles:', mappedArticles);
         setArticles(mappedArticles);
@@ -271,45 +294,79 @@ const BlogUpdates = () => {
             <p className="text-gray-300">No articles available at the moment.</p>
           </div>
         )}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {articles.map((article, index) => {
-            const isClicked = clickedArticles.has(index);
-            return (
-              <div
-                key={index}
-                className="group relative bg-white/10 backdrop-blur-md rounded-3xl p-6 hover:bg-white/20 transition-all duration-500 cursor-pointer"
-                style={{
-                  animationDelay: `${index * 150}ms`
-                }}
-              >
-                {/* Content */}
-                <div className="relative z-10">
-                  <p className="text-sm text-gray-300 mb-4">{article.date}</p>
-                  <h3
-                    className={`text-xl font-bold mb-4 cursor-pointer transition-colors ${isClicked ? 'text-blue-400' : 'text-white group-hover:text-blue-400'}`}
-                    onClick={() => {
-                      setClickedArticles(prev => new Set(prev).add(index));
-                      navigate(`/blog/${index}`);
-                    }}
-                  >
-                    {article.title}
-                  </h3>
-                  <p className="text-gray-300 leading-relaxed mb-6 group-hover:text-gray-200 transition-colors duration-300">
-                    {(stripHtml(article.description || "")).slice(0, 60) + "..."}
-                  </p>
+        {/* Sliding Container with Navigation */}
+        <div className="relative flex items-center">
+          {/* Previous Button */}
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+            disabled={currentPage === 0}
+            className="absolute left-0 z-10 bg-white/10 backdrop-blur-md rounded-full p-3 hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Previous page"
+          >
+            <span className="text-white text-2xl">←</span>
+          </button>
 
-                  {/* Learn More Button */}
-                  <button
-                    onClick={() => navigate(`/blog/${index}`)}
-                    className="flex items-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300 font-semibold hover:from-blue-300 hover:to-blue-200 transform group-hover:translate-x-2 transition-all duration-300"
-                  >
-                    Read More
-                    <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">→</span>
-                  </button>
+          {/* Sliding Container */}
+          <div className="relative overflow-hidden flex-1 mx-12">
+            <div
+              className="flex transition-transform duration-500 ease-in-out"
+              style={{ transform: `translateX(-${currentPage * 100}%)` }}
+            >
+              {Array.from({ length: Math.ceil(articles.length / articlesPerPage) }, (_, pageIndex) => (
+                <div key={pageIndex} className="flex-shrink-0 w-full grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {articles.slice(pageIndex * articlesPerPage, (pageIndex + 1) * articlesPerPage).map((article, index) => {
+                    const globalIndex = pageIndex * articlesPerPage + index;
+                    const isClicked = clickedArticles.has(globalIndex);
+                    return (
+                      <div
+                        key={globalIndex}
+                        className="group relative bg-white/10 backdrop-blur-md rounded-3xl p-6 hover:bg-white/20 transition-all duration-500 cursor-pointer"
+                        style={{
+                          animationDelay: `${index * 150}ms`
+                        }}
+                      >
+                        {/* Content */}
+                        <div className="relative z-10">
+                          <p className="text-sm text-gray-300 mb-4">{new Date(article.publishedAt || article.date).toLocaleDateString()}</p>
+                          <h3
+                            className={`text-xl font-bold mb-4 cursor-pointer transition-colors ${isClicked ? 'text-blue-400' : 'text-white group-hover:text-blue-400'}`}
+                            onClick={() => {
+                              setClickedArticles(prev => new Set(prev).add(globalIndex));
+                              navigate(`/blog/${globalIndex}`);
+                            }}
+                          >
+                            {article.title}
+                          </h3>
+                          <p className="text-gray-300 leading-relaxed mb-6 group-hover:text-gray-200 transition-colors duration-300">
+                            {(stripHtml(article.description || "")).slice(0, 60) + "..."}
+                          </p>
+
+                          {/* Learn More Button */}
+                          <button
+                            onClick={() => navigate(`/blog/${globalIndex}`)}
+                            className="flex items-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300 font-semibold hover:from-blue-300 hover:to-blue-200 transform group-hover:translate-x-2 transition-all duration-300"
+                          >
+                            Read More
+                            <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">→</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
-            );
-          })}
+              ))}
+            </div>
+          </div>
+
+          {/* Next Button */}
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(Math.ceil(articles.length / articlesPerPage) - 1, prev + 1))}
+            disabled={currentPage === Math.ceil(articles.length / articlesPerPage) - 1}
+            className="absolute right-0 z-10 bg-white/10 backdrop-blur-md rounded-full p-3 hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Next page"
+          >
+            <span className="text-white text-2xl">→</span>
+          </button>
         </div>
       </div>
     </section>
