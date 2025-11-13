@@ -3,10 +3,11 @@ import dotenv from "dotenv";
 
 import Product from "./models/product.js";
 import Industry from "./models/industry.js";
+import Job from "./models/job.js";
 
 dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/shivohini";
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/nachiket";
 
 mongoose
   .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -181,6 +182,15 @@ const industries = [
   }
 ];
 
+const Jobs= [{
+  title: "Software Developer",
+  location: "Pune",
+  type: "Full Time",
+  description: "Nice",
+  applyLink: "www.com",
+  postedAt: Date.now()
+}];
+
 const seedData = async () => {
   try {
     await Product.deleteMany({});
@@ -188,6 +198,7 @@ const seedData = async () => {
 
     await Product.insertMany(products);
     await Industry.insertMany(industries);
+    await Job.insertMany(Jobs)
 
     console.log("Seed data inserted successfully!");
     mongoose.connection.close();

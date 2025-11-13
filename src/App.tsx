@@ -9,6 +9,9 @@ import Industries from "./components/Industries";
 import Careers from "./pages/Careers";
 import Contact from "./pages/Contact";
 
+// 🧩 Apply Page
+import Apply from "./pages/Apply"; // 👈 newly added
+
 // 🤖 Solutions Sub Pages
 import AIAgent from "./pages/solutions/AIAgent";
 import FaceRecognition from "./pages/solutions/FaceRecognition";
@@ -16,7 +19,7 @@ import CustomizedDrones from "./pages/solutions/CustomizedDrones";
 import AIVirtualAssistant from "./pages/solutions/AIVirtualAssistant";
 import InteractiveWebsites from "./pages/solutions/InteractiveWebsites";
 
-// 🤖 Industries Sub Pages
+// 🏭 Industries Sub Pages
 import Hotel from "./pages/industries/Hotel";
 import Restaurant from "./pages/industries/Restaurant";
 import Supermarket from "./pages/industries/Supermarket";
@@ -27,7 +30,6 @@ import Finance from "./pages/industries/Finance";
 import HR from "./pages/industries/HR";
 import Sports from "./pages/industries/Sports";
 
-
 // 🧩 Components
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -36,6 +38,7 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
+
       {/* 🌐 Navbar */}
       <Header />
 
@@ -49,6 +52,9 @@ function App() {
         <Route path="/careers" element={<Careers />} />
         <Route path="/contact" element={<Contact />} />
 
+        {/* 👇 Added Apply Page Route */}
+        <Route path="/apply/:id" element={<Apply />} />
+
         {/* Solutions Sub Pages */}
         <Route path="/solutions/1" element={<AIAgent />} />
         <Route path="/solutions/2" element={<FaceRecognition />} />
@@ -56,18 +62,16 @@ function App() {
         <Route path="/solutions/4" element={<AIVirtualAssistant />} />
         <Route path="/solutions/5" element={<InteractiveWebsites />} />
 
-
-        {/* Industries sub Pages */}
+        {/* Industries Sub Pages */}
         <Route path="/industries/hotel" element={<Hotel />} />
         <Route path="/industries/restaurant" element={<Restaurant />} />
         <Route path="/industries/supermarket" element={<Supermarket />} />
         <Route path="/industries/export-import" element={<ExportImport />} />
-        <Route path="/industries/Education" element={<Education />} />
+        <Route path="/industries/education" element={<Education />} />
         <Route path="/industries/realestate" element={<RealEstate />} />
         <Route path="/industries/finance" element={<Finance />} />
         <Route path="/industries/hr" element={<HR />} />
         <Route path="/industries/sports" element={<Sports />} />
-
 
         {/* Optional Catch-All */}
         <Route path="*" element={<Home />} />
