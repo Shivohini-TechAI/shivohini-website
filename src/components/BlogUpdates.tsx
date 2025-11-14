@@ -100,10 +100,11 @@ const BlogUpdates = () => {
     return text;
   };
 
-  // Function to fetch news from NewsAPI
+  // Function to generate blog updates using OpenAI API
   const fetchNews = async () => {
     console.log('fetchNews function called');
-    const apiKey = 'c9263a027df943ee958b80b76fa1c60d';
+    const startTime = Date.now();
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
     const today = new Date().toISOString().split('T')[0];
     const cacheKey = `news_${today}`;
     console.log('Cache key:', cacheKey);
@@ -113,80 +114,71 @@ const BlogUpdates = () => {
     console.log('Cache cleared, fetching fresh data');
 
     try {
-      console.log('Fetching news from NewsAPI...');
-      const apiUrl = `https://newsapi.org/v2/everything?q=AI+OR+artificial+intelligence+OR+computer+OR+IT+OR+technology+OR+innovation+OR+invention&sortBy=publishedAt&apiKey=${apiKey}&pageSize=100&domains=techcrunch.com,wired.com,arstechnica.com,thenextweb.com,venturebeat.com`;
-      console.log('API URL:', apiUrl);
-      const response = await fetch(apiUrl);
-      console.log('API Response status:', response.status);
+      console.log('Generating blog updates using OpenAI...');
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            {
+              role: 'user',
+            content: `Generate 6 unique news articles about AI, artificial intelligence, technology, innovation, or computer science. Each article should include:
+- title: A catchy news headline
+- description: A brief news summary (2-3 sentences)
+- content: A detailed news article body with at least 6-8 paragraphs (600-800 words) covering facts, developments, and implications
+- date: Today's date in YYYY-MM-DD format
+- publishedAt: Current timestamp in ISO format
+- source: { name: "AI Generated" }
+- author: "AI Assistant"
+
+Return the response as a valid JSON array of objects with these exact keys. Ensure each article is unique, informative, and structured like professional news reporting. Avoid repetition of content across articles.`
+            }
+          ],
+          max_tokens: 3000,
+          temperature: 0.7,
+        }),
+      });
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`OpenAI API error! status: ${response.status}`);
       }
+
       const data = await response.json();
-      console.log('API Response data:', data);
+      console.log('OpenAI Response:', data);
 
-      if (data.status === 'ok' && data.articles) {
-        console.log('Total articles received:', data.articles.length);
+      if (data.choices && data.choices[0] && data.choices[0].message) {
+        const generatedContent = data.choices[0].message.content;
+        console.log('Generated content:', generatedContent);
 
-        // Filter articles to only show news from last 30 days and exclude unwanted sources and content
-        const today = new Date().toISOString().split('T')[0];
-        const unwantedSources = ['buzzfeed', 'buzzfeed.com', 'BuzzFeed', 'buzzfeednews'];
-        const unwantedUrls = ['buzzfeed.com'];
-        const unwantedKeywords = [
-          'people whose lives', 'blown up by', 'unfortunate decisions',
-          'viral', 'shocking', 'amazing', 'incredible', 'mind-blowing',
-          'you won\'t believe', 'what happened next', 'gone wrong',
-          'fails', 'fails compilation', 'funny', 'hilarious', 'laugh',
-          'entertainment', 'celebrity', 'celebrities', 'hollywood',
-          'movie', 'movies', 'tv show', 'tv shows', 'netflix', 'streaming',
-          'black friday', 'deals', 'shopping', 'sale', 'discount', 'offer',
-          'home depot', 'tools', 'hardware', 'appliances', 'furniture',
-          'christmas', 'holiday', 'gift', 'gifts', 'shopping guide',
-          'best buys', 'price drop', 'clearance', 'bargain', 'coupon',
-          'gay', 'lgbtq', 'dating', 'app store', 'china', 'government',
-          'censorship', 'social', 'community', 'marginalized', 'regulator',
-          'removal', 'pulls', 'removes', 'banned', 'blocked', 'forbidden',
-          'groww', 'ipo', 'indian fintech', 'retail investing boom'
-        ];
+        // Parse the JSON response, handling potential markdown formatting
+        let articles: Article[];
+        try {
+          // Remove markdown code blocks if present
+          let cleanedContent = generatedContent.trim();
+          if (cleanedContent.startsWith('```json')) {
+            cleanedContent = cleanedContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+          } else if (cleanedContent.startsWith('```')) {
+            cleanedContent = cleanedContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
+          }
+          articles = JSON.parse(cleanedContent);
+          console.log('Parsed articles:', articles);
+        } catch (parseError) {
+          console.error('Error parsing OpenAI response:', parseError);
+          console.error('Raw response:', generatedContent);
+          throw new Error('Failed to parse generated content');
+        }
 
-        // Keywords for MNCs and inventions
-        const mncKeywords = ['google', 'microsoft', 'apple', 'amazon', 'nvidia', 'tesla', 'ibm', 'intel', 'amd', 'meta', 'oracle', 'adobe', 'salesforce', 'cisco', 'qualcomm', 'facebook', 'twitter', 'linkedin'];
-        const inventionKeywords = ['invention', 'innovation', 'breakthrough', 'patent', 'new technology', 'discovery', 'advancement', 'cutting-edge', 'revolutionary'];
-        const techKeywords = ['ai', 'artificial intelligence', 'machine learning', 'computer', 'technology', 'software', 'hardware', 'startup', 'tech', 'digital'];
+        // Ensure we have exactly 6 articles
+        if (!Array.isArray(articles) || articles.length !== 6) {
+          throw new Error('Invalid number of articles generated');
+        }
 
-        const filteredArticles = data.articles.filter((article: any) => {
-          const articleDate = new Date(article.publishedAt);
-          const today = new Date();
-          const thirtyDaysAgo = new Date(today);
-          thirtyDaysAgo.setDate(today.getDate() - 30);
-
-          const sourceName = article.source?.name?.toLowerCase() || '';
-          const articleUrl = article.url?.toLowerCase() || '';
-          const title = article.title?.toLowerCase() || '';
-          const description = article.description?.toLowerCase() || '';
-
-          const isUnwantedBySource = unwantedSources.some(unwanted => sourceName.includes(unwanted));
-          const isUnwantedByUrl = unwantedUrls.some(unwanted => articleUrl.includes(unwanted));
-          const isUnwantedByTitle = unwantedKeywords.some(keyword => title.includes(keyword));
-          const isUnwantedByDescription = unwantedKeywords.some(keyword => description.includes(keyword));
-
-          // Check if article is about MNCs, inventions, or general tech topics
-          const isAboutMNC = mncKeywords.some(keyword => title.includes(keyword) || description.includes(keyword));
-          const isAboutInvention = inventionKeywords.some(keyword => title.includes(keyword) || description.includes(keyword));
-          const isAboutTech = techKeywords.some(keyword => title.includes(keyword) || description.includes(keyword));
-
-          // Show articles from the last 30 days that are about MNCs, inventions, or tech topics
-          const isWithinLastThirtyDays = articleDate >= thirtyDaysAgo && articleDate <= today;
-
-          return isWithinLastThirtyDays && !isUnwantedBySource && !isUnwantedByUrl && !isUnwantedByTitle && !isUnwantedByDescription && (isAboutMNC || isAboutInvention || isAboutTech);
-        });
-
-        console.log('Articles after filtering:', filteredArticles.length);
-
-        // Take up to 6 articles from the last 7 days for pagination
-        const selectedArticles = filteredArticles.slice(0, 6);
-        console.log('Selected articles:', selectedArticles.length);
-
-        const mappedArticles: Article[] = selectedArticles.map((article: any, index: number) => {
+        // Validate and map articles to ensure they match the Article interface
+        const mappedArticles: Article[] = articles.map((article: any, index: number) => {
           const today = new Date().toISOString().split('T')[0];
           const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
           const dayBeforeYesterday = new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0];
@@ -203,14 +195,14 @@ const BlogUpdates = () => {
           }
           return {
             date,
-            title: article.title || 'No Title',
-            description: article.description || 'No Description',
-            content: article.content || article.description || 'No Content',
-            url: article.url,
-            source: { name: article.source?.name || 'Unknown Source' },
-            urlToImage: article.urlToImage,
-            author: article.author,
-            publishedAt
+            title: article.title || `AI Blog Post ${index + 1}`,
+            description: article.description || 'Generated description',
+            content: article.content || 'Generated content',
+            url: article.url || null,
+            source: article.source || { name: 'AI Generated' },
+            urlToImage: `https://picsum.photos/400/200?random=${index}`,
+            author: article.author || 'AI Assistant',
+            publishedAt,
           };
         });
 
@@ -219,11 +211,11 @@ const BlogUpdates = () => {
         // Cache the data
         localStorage.setItem(cacheKey, JSON.stringify(mappedArticles));
       } else {
-        throw new Error(data.message || 'Failed to fetch news');
+        throw new Error('Invalid response from OpenAI API');
       }
     } catch (err) {
-      console.error('Error fetching news:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch news');
+      console.error('Error generating blog updates:', err);
+      setError(err instanceof Error ? err.message : 'Failed to generate blog updates');
 
       // Try to load cached data from previous days if available
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
@@ -231,16 +223,34 @@ const BlogUpdates = () => {
       const yesterdayData = localStorage.getItem(yesterdayCacheKey);
       if (yesterdayData) {
         setArticles(JSON.parse(yesterdayData));
-        setError('Showing yesterday\'s news due to API error');
+        setError('Showing yesterday\'s updates due to API error');
       }
     } finally {
-      setLoading(false);
+      const elapsedTime = Date.now() - startTime;
+      const minLoadingTime = 2000; // 2 seconds minimum loading time
+      const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
+      setTimeout(() => {
+        setLoading(false);
+      }, remainingTime);
     }
   };
 
   useEffect(() => {
-    console.log('BlogUpdates component mounted, calling fetchNews');
-    fetchNews();
+    console.log('BlogUpdates component mounted, loading articles');
+    const today = new Date().toISOString().split('T')[0];
+    const cacheKey = `news_${today}`;
+
+    const cachedData = localStorage.getItem(cacheKey);
+    if (cachedData) {
+      const articles = JSON.parse(cachedData);
+      setArticles(articles);
+      setLoading(false);
+      // Fetch new data in the background to update seamlessly
+      fetchNews();
+    } else {
+      // No today's cache, fetch new data
+      fetchNews();
+    }
   }, []);
 
   if (loading) {

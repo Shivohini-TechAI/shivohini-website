@@ -72,10 +72,24 @@ const BlogDetail: React.FC = () => {
       const selectedArticle = articles[articleIndex];
       setArticle(selectedArticle);
 
-      // Fetch full content from the article URL if available
-      if (selectedArticle.url) {
-        fetchFullArticleContent(selectedArticle.url);
-      }
+      // For all articles (AI-generated or external), format the content directly
+      // Skip external fetching to avoid CORS issues
+      const formattedContent = selectedArticle.content
+        .split('\n\n')
+        .filter(paragraph => paragraph.trim().length > 0)
+        .map(paragraph => `<p style="color: white; margin: 0 0 1em 0; line-height: 1.8; font-size: 1em; font-weight: 400; text-align: justify;">${paragraph.trim()}</p>`)
+        .join('');
+
+      const fullContent = `
+        <div style="margin-bottom: 2.5em; padding: 2em; background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%); border-radius: 16px; border-left: 5px solid #3b82f6; box-shadow: 0 8px 32px rgba(0,0,0,0.3); position: relative; overflow: hidden;">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #3b82f6, #06b6d4, #3b82f6);"></div>
+          <div style="padding-top: 0.5em;">
+            ${formattedContent}
+          </div>
+          <div style="position: absolute; bottom: -10px; right: -10px; width: 40px; height: 40px; background: #3b82f6; border-radius: 50%; opacity: 0.1;"></div>
+        </div>
+      `;
+      setArticle(prev => prev ? { ...prev, fullContent } : null);
     } else {
       setError('Article not found');
     }
@@ -177,8 +191,8 @@ const BlogDetail: React.FC = () => {
           }
         }
 
-        // Limit to 10 chunks total
-        const limitedChunks = allChunks.slice(0, 10);
+        // Limit to 15 chunks total for more content
+        const limitedChunks = allChunks.slice(0, 15);
 
         if (limitedChunks.length > 0) {
           const paragraphContent = limitedChunks.map(chunk => `<p style="color: white; margin: 0 0 1em 0; line-height: 1.8; font-size: 1em; font-weight: 400; text-align: justify;">${chunk}</p>`).join('');
@@ -251,26 +265,13 @@ const BlogDetail: React.FC = () => {
             <span>{new Date(article.publishedAt || article.date).toLocaleDateString()}</span>
           </div>
 
-          {/* Article Image */}
-          {article.urlToImage && (
-            <div className="mb-8">
-              <img
-                src={article.urlToImage}
-                alt={article.title}
-                className="w-full h-64 md:h-80 object-cover rounded-2xl"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-            </div>
-          )}
-
           <h1 className="text-4xl lg:text-5xl font-bold mb-8 text-blue-400">{article.title}</h1>
 
-          {/* Full Article Content */}
-          {article.content && article.content.length > 100 && (
-            <div className="text-white leading-relaxed text-lg mb-8">
-              {article.content}
+          {/* Article Summary */}
+          {article.description && (
+            <div className="text-white leading-relaxed text-lg mb-8 bg-white/5 p-6 rounded-xl border-l-4 border-blue-400">
+              <h4 className="text-blue-400 font-semibold mb-4">Summary</h4>
+              {article.description}
             </div>
           )}
 
