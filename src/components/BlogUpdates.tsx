@@ -200,7 +200,7 @@ Return the response as a valid JSON array of objects with these exact keys. Ensu
             content: article.content || 'Generated content',
             url: article.url || null,
             source: article.source || { name: 'AI Generated' },
-            urlToImage: `https://picsum.photos/400/200?random=${index}`,
+            urlToImage: `https://source.unsplash.com/400x200/?computer,laptop,technology,digital,software&sig=${index}`,
             author: article.author || 'AI Assistant',
             publishedAt,
           };
@@ -245,11 +245,23 @@ Return the response as a valid JSON array of objects with these exact keys. Ensu
       const articles = JSON.parse(cachedData);
       setArticles(articles);
       setLoading(false);
-      // Fetch new data in the background to update seamlessly
-      fetchNews();
+      // Set up hourly update interval (3600000 ms = 1 hour)
+      const updateInterval = setInterval(() => {
+        console.log('Hourly update triggered');
+        fetchNews();
+      }, 3600000); // Update every hour
+
+      return () => clearInterval(updateInterval);
     } else {
       // No today's cache, fetch new data
       fetchNews();
+      // Set up hourly update interval after initial fetch
+      const updateInterval = setInterval(() => {
+        console.log('Hourly update triggered');
+        fetchNews();
+      }, 3600000); // Update every hour
+
+      return () => clearInterval(updateInterval);
     }
   }, []);
 
@@ -330,11 +342,13 @@ Return the response as a valid JSON array of objects with these exact keys. Ensu
                     return (
                       <div
                         key={globalIndex}
-                        className="group relative bg-white/10 backdrop-blur-md rounded-3xl p-6 hover:bg-white/20 transition-all duration-500 cursor-pointer"
+                        className="group relative bg-white/10 backdrop-blur-md rounded-3xl p-6 hover:bg-white/20 transition-all duration-500 cursor-pointer overflow-hidden"
                         style={{
                           animationDelay: `${index * 150}ms`
                         }}
                       >
+
+
                         {/* Content */}
                         <div className="relative z-10">
                           <p className="text-sm text-gray-300 mb-4">{new Date(article.publishedAt || article.date).toLocaleDateString()}</p>

@@ -267,6 +267,25 @@ const BlogDetail: React.FC = () => {
 
           <h1 className="text-4xl lg:text-5xl font-bold mb-8 text-blue-400">{article.title}</h1>
 
+          {/* Article Image */}
+          <div className="mb-8 relative overflow-hidden rounded-2xl shadow-lg">
+            <img
+              src={`https://source.unsplash.com/400x200/?computer&sig=${id}`}
+              alt={article.title}
+              className="w-full h-64 md:h-80 object-cover transition-transform duration-500 hover:scale-105"
+              onError={(e) => {
+                console.log('Primary image failed, trying technology fallback');
+                const target = e.target as HTMLImageElement;
+                target.src = `https://source.unsplash.com/400x200/?technology&sig=${id}`;
+                target.onerror = () => {
+                  console.log('Technology fallback failed, using Picsum');
+                  target.src = `https://picsum.photos/400/200?random=${id}`;
+                };
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+          </div>
+
           {/* Article Summary */}
           {article.description && (
             <div className="text-white leading-relaxed text-lg mb-8 bg-white/5 p-6 rounded-xl border-l-4 border-blue-400">
