@@ -21,6 +21,29 @@ const BlogDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   console.log('BlogDetail id:', id);
   const navigate = useNavigate();
+
+  // Array of specific AI/computer-related images (no human subjects)
+  const aiImages = [
+    'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=400&fit=crop', // Quantum computing
+    'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&h=400&fit=crop', // AI neural network visualization
+    'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop', // Computer motherboard
+    'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=400&fit=crop', // Data center servers
+    'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=400&fit=crop', // Laptop with code
+    'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop', // Robot arm
+    'https://images.unsplash.com/photo-1555255707-c07966088b7b?w=800&h=400&fit=crop', // Binary code background
+    'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=400&fit=crop', // Technology abstract
+    'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop', // AI brain visualization
+    'https://images.unsplash.com/photo-1561736778-92e52a7769ef?w=800&h=400&fit=crop', // Circuit board
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop', // Programming code
+    'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=400&fit=crop', // AI data visualization
+    'https://images.unsplash.com/photo-1517134191118-9d595e4c8c2b?w=800&h=400&fit=crop', // Server room
+    'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=800&h=400&fit=crop', // Coding on laptop
+    'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=400&fit=crop', // Robotic arm
+
+    'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&h=400&fit=crop', // Digital abstract
+    'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=400&fit=crop', // Neural network
+
+  ];
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -270,18 +293,9 @@ const BlogDetail: React.FC = () => {
           {/* Article Image */}
           <div className="mb-8 relative overflow-hidden rounded-2xl shadow-lg">
             <img
-              src={`https://source.unsplash.com/400x200/?computer&sig=${id}`}
+              src={aiImages[parseInt(id || '0') % aiImages.length]}
               alt={article.title}
-              className="w-full h-64 md:h-80 object-cover transition-transform duration-500 hover:scale-105"
-              onError={(e) => {
-                console.log('Primary image failed, trying technology fallback');
-                const target = e.target as HTMLImageElement;
-                target.src = `https://source.unsplash.com/400x200/?technology&sig=${id}`;
-                target.onerror = () => {
-                  console.log('Technology fallback failed, using Picsum');
-                  target.src = `https://picsum.photos/400/200?random=${id}`;
-                };
-              }}
+              className="w-full h-64 md:h-80 object-cover rounded-2xl"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
           </div>

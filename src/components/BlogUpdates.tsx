@@ -237,6 +237,9 @@ Return the response as a valid JSON array of objects with these exact keys. Ensu
 
   useEffect(() => {
     console.log('BlogUpdates component mounted, loading articles');
+    // Reset clicked articles when component mounts (when navigating back)
+    setClickedArticles(new Set());
+
     const today = new Date().toISOString().split('T')[0];
     const cacheKey = `news_${today}`;
 
