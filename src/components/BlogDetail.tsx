@@ -17,9 +17,7 @@ interface Article {
 }
 
 const BlogDetail: React.FC = () => {
-  console.log('BlogDetail component mounted');
   const { id } = useParams<{ id: string }>();
-  console.log('BlogDetail id:', id);
   const navigate = useNavigate();
 
   // Array of specific AI/computer-related images (no human subjects)
@@ -34,12 +32,11 @@ const BlogDetail: React.FC = () => {
     'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=400&fit=crop', // Technology abstract
     'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop', // AI brain visualization
     'https://images.unsplash.com/photo-1561736778-92e52a7769ef?w=800&h=400&fit=crop', // Circuit board
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop', // Programming code
+    'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=400&fit=crop', // Digital circuit board
     'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=400&fit=crop', // AI data visualization
     'https://images.unsplash.com/photo-1517134191118-9d595e4c8c2b?w=800&h=400&fit=crop', // Server room
     'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=800&h=400&fit=crop', // Coding on laptop
     'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=400&fit=crop', // Robotic arm
-
     'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&h=400&fit=crop', // Digital abstract
     'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=400&fit=crop', // Neural network
 
@@ -291,11 +288,14 @@ const BlogDetail: React.FC = () => {
           <h1 className="text-4xl lg:text-5xl font-bold mb-8 text-blue-400">{article.title}</h1>
 
           {/* Article Image */}
-          <div className="mb-8 relative overflow-hidden rounded-2xl shadow-lg">
+          <div className="mb-8 relative overflow-hidden rounded-2xl shadow-lg bg-gray-800/50 flex items-center justify-center">
             <img
-              src={aiImages[parseInt(id || '0') % aiImages.length]}
+              src={aiImages[(parseInt(id || '0') + new Date().getHours()) % aiImages.length]}
               alt={article.title}
-              className="w-full h-64 md:h-80 object-cover rounded-2xl"
+              className="max-w-full max-h-64 md:max-h-80 object-contain rounded-2xl"
+              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                e.currentTarget.src = aiImages[0]; // Fallback to first image if current fails to load
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
           </div>
