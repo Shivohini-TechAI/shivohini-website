@@ -9,45 +9,56 @@ import jobsRouter from "./routes/jobs.js";
 import productsRouter from "./routes/products.js";
 import industriesRouter from "./routes/industries.js";
 import applicationRouter from "./routes/applicationRoutes.js";
-import errorHandler from "./middleware/errorHandler.js";
 import contactRoutes from "./routes/contactRoutes.js";
+import errorHandler from "./middleware/errorHandler.js";
 
 dotenv.config();
-
-console.log("✅ Loaded email user:", process.env.EMAIL_USER ? "Found" : "Missing");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middlewares
 app.use(helmet());
-app.use(cors({
-  origin: ["http://localhost:5173", "https://your-frontend-domain.com"],
-}));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://your-frontend-domain.com"],
+  })
+);
+
 app.use(express.json());
 
-// Serve uploads folder (so resumes can be accessed)
-app.use("/uploads", express.static(path.resolve("uploads")));
+// ================================
+// ✅ Serve Uploads Folder (Images + Resumes)
+// ================================
+const __dirname = path.resolve();
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+console.log("📂 Serving uploads from:", path.join(__dirname, "uploads"));
+
+// ================================
 // Routes
+// ================================
 app.use("/api/jobs", jobsRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/industries", industriesRouter);
-app.use("/api/apply", applicationRouter); // 👈 added this line
+app.use("/api/apply", applicationRouter);
 app.use("/api/contact", contactRoutes);
 
-
-// Health check
+// Health Route
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 
-// Error handler
+// Error Handler
 app.use(errorHandler);
 
-// Connect to MongoDB
+// ================================
+// MongoDB Connection
+// ================================
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("✅ MongoDB connected");
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    app.listen(PORT, () =>
+      console.log(`🚀 Server running on http://localhost:${PORT}`)
+    );
   })
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+  .catch((err) => console.error("❌ MongoDB error:", err));

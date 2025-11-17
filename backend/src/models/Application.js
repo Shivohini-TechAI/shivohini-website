@@ -5,7 +5,7 @@ const applicationSchema = new mongoose.Schema({
   email: String,
   phone: String,
   message: String,
-  resume: String, // File path or URL
+  resumeLink: String, // Google Drive link instead of file
   appliedAt: { type: Date, default: Date.now },
 });
 

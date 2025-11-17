@@ -1,43 +1,29 @@
 import express from "express";
-import multer from "multer";
 import nodemailer from "nodemailer";
 import Application from "../models/Application.js";
 import dotenv from "dotenv";
-import path from "path";
-import fs from "fs";
 
 dotenv.config();
 const router = express.Router();
 
-// ✅ Ensure uploads directory exists
-const uploadDir = path.resolve("uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
-
-// ✅ Multer setup for file upload
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) =>
-    cb(null, Date.now() + "-" + file.originalname),
-});
-
-const upload = multer({ storage });
-
-// ✅ POST /api/apply — Submit Job Application
-router.post("/", upload.single("resume"), async (req, res) => {
+// POST /api/apply — Submit Job Application
+router.post("/", async (req, res) => {
   try {
-    const { name, email, phone, message } = req.body;
-    const resume = req.file ? req.file.path : "";
+    const { name, email, phone, message, resumeLink } = req.body;
 
-    // Save in MongoDB
+    if (!name || !email || !phone || !resumeLink) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    // Save application in MongoDB
     const application = new Application({
       name,
       email,
       phone,
       message,
-      resume,
+      resumeLink,
     });
+
     await application.save();
 
     // Send email to HR
@@ -52,20 +38,29 @@ router.post("/", upload.single("resume"), async (req, res) => {
     const mailOptions = {
       from: process.env.HR_EMAIL,
       to: process.env.HR_EMAIL,
-      subject: `New Job Application from ${name}`,
-      text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${message}`,
-      attachments: req.file
-        ? [{ filename: req.file.originalname, path: req.file.path }]
-        : [],
+      subject: `New Job Application — ${name}`,
+      text: `
+New Candidate Applied:
+
+Name: ${name}
+Email: ${email}
+Phone: ${phone}
+
+Message:
+${message}
+
+Resume Link:
+${resumeLink}
+      `,
     };
 
     await transporter.sendMail(mailOptions);
 
-    console.log("✅ Application received and email sent to HR.");
+    console.log("✅ Application stored + Email sent to HR");
     res.status(200).json({ message: "Application submitted successfully!" });
   } catch (error) {
-    console.error("❌ Error submitting application:", error);
-    res.status(500).json({ message: "Error submitting application" });
+    console.log("❌ Error submitting application:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

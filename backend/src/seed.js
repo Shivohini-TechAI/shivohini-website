@@ -125,54 +125,6 @@ const industries = [
     bgGradient: "from-red-50 to-red-100"
   },
   {
-    title: "Restaurant",
-    description: "Intelligent restaurant solutions including order management.",
-    icon: "UtensilsIcon",
-    solutions: ["Menu Optimization", "Order Management", "Kitchen Automation", "Customer Analytics"],
-    color: "from-red-500 to-red-600",
-    bgGradient: "from-red-50 to-red-100"
-  },
-  {
-    title: "Restaurant",
-    description: "Intelligent restaurant solutions including order management.",
-    icon: "UtensilsIcon",
-    solutions: ["Menu Optimization", "Order Management", "Kitchen Automation", "Customer Analytics"],
-    color: "from-red-500 to-red-600",
-    bgGradient: "from-red-50 to-red-100"
-  },
-  {
-    title: "Restaurant",
-    description: "Intelligent restaurant solutions including order management.",
-    icon: "UtensilsIcon",
-    solutions: ["Menu Optimization", "Order Management", "Kitchen Automation", "Customer Analytics"],
-    color: "from-red-500 to-red-600",
-    bgGradient: "from-red-50 to-red-100"
-  },
-  {
-    title: "Restaurant",
-    description: "Intelligent restaurant solutions including order management.",
-    icon: "UtensilsIcon",
-    solutions: ["Menu Optimization", "Order Management", "Kitchen Automation", "Customer Analytics"],
-    color: "from-red-500 to-red-600",
-    bgGradient: "from-red-50 to-red-100"
-  },
-  {
-    title: "Restaurant",
-    description: "Intelligent restaurant solutions including order management.",
-    icon: "UtensilsIcon",
-    solutions: ["Menu Optimization", "Order Management", "Kitchen Automation", "Customer Analytics"],
-    color: "from-red-500 to-red-600",
-    bgGradient: "from-red-50 to-red-100"
-  },
-  {
-    title: "Restaurant",
-    description: "Intelligent restaurant solutions including order management.",
-    icon: "UtensilsIcon",
-    solutions: ["Menu Optimization", "Order Management", "Kitchen Automation", "Customer Analytics"],
-    color: "from-red-500 to-red-600",
-    bgGradient: "from-red-50 to-red-100"
-  },
-  {
     title: "Supermarket",
     description: "Smart retail solutions with inventory management.",
     icon: "ShoppingCartIcon",
