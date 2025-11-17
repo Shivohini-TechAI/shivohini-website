@@ -16,13 +16,14 @@ const Restaurant: React.FC = () => {
       <div className="text-center mb-12">
 
         {/* Image Above the Title */}
-        <div className="inline-flex items-center justify-center bg-gradient-to-r from-rose-500 to-pink-500 rounded-full p-5 shadow-lg mb-6">
+        <div className="mb-6 flex justify-center">
           <img
             src={restaurantImg}
             alt="Restaurant Industry"
-            className="w-14 h-14 object-contain"
+            className="w-32 h-32 object-cover rounded-xl shadow-lg"
           />
         </div>
+
 
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
           Restaurant Solutions — AI Agent
