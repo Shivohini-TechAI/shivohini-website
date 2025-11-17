@@ -148,8 +148,8 @@ const seedData = async () => {
     await Product.deleteMany({});
     await Industry.deleteMany({});
 
-    await Product.insertMany(products);
-    await Industry.insertMany(industries);
+    // await Product.insertMany(products);
+    // await Industry.insertMany(industries);
     await Job.insertMany(Jobs)
 
     console.log("Seed data inserted successfully!");

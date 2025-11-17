@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
+import ProductPage from "./pages/solutions/ProductPage";
 
 // 🏠 Main Pages
 import Home from "./pages/Home";
@@ -12,7 +13,7 @@ import Blog from "./pages/Blog";
 import BlogDetail from "./components/BlogDetail";
 
 // 🧩 Apply Page
-import Apply from "./pages/Apply"; // 👈 newly added
+import Apply from "./pages/Apply";
 
 // 🤖 Solutions Sub Pages
 import AIAgent from "./pages/solutions/AIAgent";
@@ -40,13 +41,11 @@ function App() {
   return (
     <>
       <ScrollToTop />
-
-      {/* 🌐 Navbar */}
       <Header />
 
-      {/* 📄 Page Routes */}
       <Routes>
         {/* Main Pages */}
+        <Route path="/products/:id" element={<ProductPage />} />
         <Route path="/" element={<Home />} />
         <Route path="/about-us" element={<About />} />
         <Route path="/solutions" element={<Solutions />} />
@@ -56,7 +55,7 @@ function App() {
         <Route path="/careers" element={<Careers />} />
         <Route path="/contact" element={<Contact />} />
 
-        {/* 👇 Added Apply Page Route */}
+        {/* Apply Page */}
         <Route path="/apply/:id" element={<Apply />} />
 
         {/* Solutions Sub Pages */}
@@ -77,11 +76,10 @@ function App() {
         <Route path="/industries/hr" element={<HR />} />
         <Route path="/industries/sports" element={<Sports />} />
 
-        {/* Optional Catch-All */}
+        {/* Catch-All */}
         <Route path="*" element={<Home />} />
       </Routes>
 
-      {/* ⚙️ Footer */}
       <Footer />
     </>
   );

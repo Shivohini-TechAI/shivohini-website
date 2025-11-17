@@ -82,40 +82,37 @@ const Hero: React.FC = () => {
             </div>
           </div>
 
-          {/* ========================== */}
-          {/* RIGHT SIDE – BLENDED VIDEO */}
-          {/* ========================== */}
-
           {/* Right Side Video Section */}
           <div
             data-reveal
             className="reveal-hidden relative flex items-center justify-center"
           >
-            <div
-              className="relative w-[420px] h-[420px] lg:w-[480px] lg:h-[480px]"
-              style={{
-                maskImage:
-                  "radial-gradient(circle at center, black 55%, transparent 100%)",
-                WebkitMaskImage:
-                  "radial-gradient(circle at center, black 55%, transparent 100%)",
-              }}
-            >
+            {/* HOLOGRAPHIC VIDEO WITH ADVANCED GLOW EFFECTS */}
+            {/* CLEAN BLENDED HOLOGRAM VIDEO */}
+            <div className="relative w-[480px] h-[480px] flex items-center justify-center">
+
               <video
                 src={videoFile}
                 autoPlay
                 loop
                 muted
                 playsInline
-                className="w-full h-full object-cover opacity-[0.88]"
+                className="w-full h-full object-cover opacity-[0.82]"
                 style={{
                   mixBlendMode: "screen",
-                  filter: "blur(0.6px)",
+                  filter: "blur(1px)",
+                  maskImage:
+                    "radial-gradient(circle at center, black 60%, transparent 100%)",
+                  WebkitMaskImage:
+                    "radial-gradient(circle at center, black 60%, transparent 100%)",
                 }}
-              />            </div>
+              />
 
-            {/* Soft Ambient Glow */}
-            <div className="absolute -z-10 w-[500px] h-[500px] rounded-full blur-[140px] bg-blue-600/10"></div>
-            <div className="absolute -z-10 w-[420px] h-[420px] rounded-full blur-[120px] bg-purple-500/10"></div>
+              {/* Subtle gradient behind video for smoother blending */}
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-cyan-300/5 to-transparent blur-[90px] -z-10"></div>
+
+            </div>
+
           </div>
 
 
