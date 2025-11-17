@@ -21,7 +21,18 @@ const Header: React.FC = () => {
     { name: "Industries", path: "/industries" },
     { name: "Careers", path: "/careers" },
     { name: "Contact", path: "/contact" },
+    { name: "Blog", path: "/#blog" },
   ];
+
+  const handleNavClick = (path: string) => {
+    if (path === "/#blog") {
+      // Scroll to blog section on home page
+      const blogElement = document.getElementById('blog');
+      if (blogElement) {
+        blogElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
     <header
@@ -65,8 +76,9 @@ const Header: React.FC = () => {
             <Link
               key={item.path}
               to={item.path}
+              onClick={() => handleNavClick(item.path)}
               className={`relative text-lg font-medium transition-all duration-300 ${
-                location.pathname === item.path
+                location.pathname === item.path || (item.path === "/#blog" && location.pathname === "/" && location.hash === "#blog")
                   ? isScrolled
                     ? "text-blue-600"
                     : "text-white"
@@ -76,7 +88,7 @@ const Header: React.FC = () => {
               }`}
             >
               {item.name}
-              {location.pathname === item.path && (
+              {(location.pathname === item.path || (item.path === "/#blog" && location.pathname === "/" && location.hash === "#blog")) && (
                 <span
                   className={`absolute left-1/2 -bottom-2 w-3/5 h-[3px] rounded-full transform -translate-x-1/2 shadow-[0_0_10px_rgba(59,130,246,0.8)] animate-pulse ${
                     isScrolled
@@ -113,7 +125,7 @@ const Header: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 className={`text-lg font-medium transition-all duration-300 ${
-                  location.pathname === item.path
+                  location.pathname === item.path || (item.path === "/#blog" && location.pathname === "/" && location.hash === "#blog")
                     ? isScrolled
                       ? "text-blue-600"
                       : "text-cyan-400"
@@ -121,7 +133,10 @@ const Header: React.FC = () => {
                     ? "text-gray-700 hover:text-blue-600"
                     : "text-gray-300 hover:text-white"
                 }`}
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  handleNavClick(item.path);
+                  setIsMenuOpen(false);
+                }}
               >
                 {item.name}
               </Link>

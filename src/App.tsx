@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 
 // 🏠 Main Pages
@@ -8,6 +8,8 @@ import Solutions from "./components/Products";
 import Industries from "./components/Industries";
 import Careers from "./pages/Careers";
 import Contact from "./pages/Contact";
+import Blog from "./pages/Blog";
+import BlogDetail from "./components/BlogDetail";
 
 // 🧩 Apply Page
 import Apply from "./pages/Apply"; // 👈 newly added
@@ -36,7 +38,7 @@ import Footer from "./components/Footer";
 
 function App() {
   return (
-    <Router>
+    <>
       <ScrollToTop />
 
       {/* 🌐 Navbar */}
@@ -49,6 +51,8 @@ function App() {
         <Route path="/about-us" element={<About />} />
         <Route path="/solutions" element={<Solutions />} />
         <Route path="/industries" element={<Industries />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:id" element={<BlogDetail />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/contact" element={<Contact />} />
 
@@ -79,7 +83,7 @@ function App() {
 
       {/* ⚙️ Footer */}
       <Footer />
-    </Router>
+    </>
   );
 }
 
