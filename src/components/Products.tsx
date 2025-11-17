@@ -1,66 +1,147 @@
-import React, { useState, useEffect } from "react";
+// src/components/Products.tsx
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Brain, Eye, Plane, MessageCircle, Globe, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Product {
   id: number;
   title: string;
   description: string;
-  icon: string; // will map icon name to component
-  features: string[];
+  features?: string[];
 }
 
-const iconMap: { [key: string]: React.FC<any> } = {
-  Brain,
-  Eye,
-  Plane,
-  MessageCircle,
-  Globe
-};
-
 const Products: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [hovered, setHovered] = useState<number | null>(null);
   const navigate = useNavigate();
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-  useEffect(() => {
-    fetch("http://localhost:5000/api/products") // your backend endpoint
-      .then(res => res.json())
-      .then(data => setProducts(data))
-      .catch(err => console.error("Error fetching products:", err));
-  }, []);
+  const products: Product[] = [
+    {
+      id: 1,
+      title: "AI Agent",
+      description: "An intelligent AI agent to automate business operations.",
+      features: ["Automates tasks", "AI powered insights"],
+    },
+    {
+      id: 2,
+      title: "Face Recognition",
+      description: "Advanced facial recognition system for security and analytics.",
+      features: ["Security solution", "Attendance tracking"],
+    },
+    {
+      id: 3,
+      title: "Customized Drones",
+      description: "Tailor-made drones for business and industrial applications.",
+      features: ["Aerial monitoring", "Customized design"],
+    },
+    {
+      id: 4,
+      title: "AI Virtual Assistant",
+      description: "Virtual assistant to manage tasks and customer queries.",
+      features: ["Task management", "Customer support"],
+    },
+    {
+      id: 5,
+      title: "Interactive Websites",
+      description: "Websites with interactive features and AI integration.",
+    },
+    {
+      id: 6,
+      title: "AI Sales Lead Generator",
+      description: "Generates high-quality leads for your business.",
+    },
+    {
+      id: 7,
+      title: "Content Creator AI",
+      description: "Automatically creates marketing content for multiple formats.",
+    },
+  ];
+
+  const itemsPerSlide = 3;
+  const totalSlides = Math.ceil(products.length / itemsPerSlide);
+
+  const nextSlide = () =>
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+  const prevSlide = () =>
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+
+  const getCurrentProducts = () => {
+    const start = currentSlide * itemsPerSlide;
+    return products.slice(start, start + itemsPerSlide);
+  };
 
   return (
-    <section className="py-24 bg-gradient-to-b from-[#1E2A78] to-[#020617] relative overflow-hidden">
-      <div className="container mx-auto px-6 text-center relative z-10">
-        <h2 className="text-4xl lg:text-5xl font-bold text-white mb-8">
-          Our <span className="text-cyan-400">AI Solutions</span>
-        </h2>
-        <p className="text-gray-300 max-w-3xl mx-auto mb-16 text-lg leading-relaxed">
-          Discover next-generation AI products designed to accelerate your business growth.
-        </p>
+    <section className="py-20 bg-gradient-to-br from-gray-900 to-blue-900 relative overflow-hidden">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
+            Our <span className="text-blue-400">Products</span>
+          </h2>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Transforming businesses with tailored AI solutions across various domains.
+          </p>
+        </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map(product => {
-            const Icon = iconMap[product.icon] || Brain;
-            return (
+        <div className="relative">
+          {/* Carousel Arrows */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-20 bg-white/10 text-white p-3 rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-110"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+
+          <button
+            onClick={nextSlide}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 z-20 bg-white/10 text-white p-3 rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-110"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+
+          {/* Product Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-12">
+            {getCurrentProducts().map((product) => (
               <div
                 key={product.id}
-                onClick={() => navigate(`/solutions/${product.id}`)}
-                onMouseEnter={() => setHovered(product.id)}
-                onMouseLeave={() => setHovered(null)}
-                className={`group bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 cursor-pointer overflow-hidden transition-all duration-500 ${
-                  hovered === product.id ? "shadow-[0_0_25px_rgba(59,130,246,0.4)]" : ""
-                }`}
+                onClick={() => navigate(`/products/${product.id}`)}
+                className="group relative bg-white/10 backdrop-blur-md rounded-3xl p-6 hover:bg-white/20 transition-all duration-500 transform hover:-translate-y-4 hover:scale-105 cursor-pointer"
               >
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 mb-6 group-hover:scale-110 transition-transform duration-500">
-                  <Icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-3">{product.title}</h3>
-                <p className="text-gray-400 group-hover:text-gray-200 transition-all duration-300">{product.description}</p>
+                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-300 transition-colors duration-300">
+                  {product.title}
+                </h3>
+
+                <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                  {product.description}
+                </p>
+
+                {product.features && (
+                  <div className="space-y-1 opacity-0 group-hover:opacity-100 transition-all duration-500">
+                    {product.features.map((feature, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center text-xs text-blue-300"
+                      >
+                        <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2" />
+                        {feature}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            );
-          })}
+            ))}
+          </div>
+
+          {/* Pagination Dots */}
+          <div className="flex justify-center mt-8 space-x-2">
+            {Array.from({ length: totalSlides }).map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  currentSlide === index ? "bg-blue-400 scale-125" : "bg-white/30"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
