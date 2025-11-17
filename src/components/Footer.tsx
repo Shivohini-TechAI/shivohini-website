@@ -19,27 +19,27 @@ const Footer: React.FC = () => {
 
   const footerLinks = {
     company: [
-      { name: 'About Us', href: '#about-us' },
+      { name: 'About Us', href: '/about-us' },
       { name: 'Our Team', href: '#team' },
-      { name: 'Careers', href: '#careers' },
+      { name: 'Careers', href: '/careers' },
       { name: 'News & Media', href: '#news' }
     ],
     services: [
-      { name: 'AI Agent', href: '#products' },
-      { name: 'Face Recognition', href: '#products' },
-      { name: 'Custom Drones', href: '#products' },
-      { name: 'Virtual Assistant', href: '#products' },
-      { name: 'Interactive Websites', href: '#products' }
+      { name: 'AI Agent', href: '/solutions' },
+      { name: 'Face Recognition', href: '/solutions' },
+      { name: 'Custom Drones', href: '/solutions' },
+      { name: 'Virtual Assistant', href: '/solutions' },
+      { name: 'Interactive Websites', href: '/solutions' }
     ],
     industries: [
-      { name: 'Hotel & Hospitality', href: '#industries' },
-      { name: 'Education', href: '#industries' },
-      { name: 'Healthcare', href: '#industries' },
-      { name: 'Finance', href: '#industries' },
-      { name: 'Real Estate', href: '#industries' }
+      { name: 'Hotel & Hospitality', href: '/industries' },
+      { name: 'Education', href: '/industries' },
+      { name: 'Healthcare', href: '/industries' },
+      { name: 'Finance', href: '/industries' },
+      { name: 'Real Estate', href: '/industries' }
     ],
     support: [
-      { name: 'Help Center', href: '#help' },
+      { name: 'Help Center', href: '/contact' },
       { name: 'Documentation', href: '#docs' },
       { name: 'API Reference', href: '#api' },
       { name: 'System Status', href: '#status' }
@@ -210,7 +210,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Newsletter Section */}
-        <div className="border-t border-gray-700">
+        {/* <div className="border-t border-gray-700">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex flex-col md:flex-row items-center justify-between">
               <div className="mb-4 md:mb-0">
@@ -230,7 +230,7 @@ const Footer: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-700">

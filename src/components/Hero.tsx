@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Brain, Zap, Cpu, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // <-- import useNavigate
 import useScrollReveal from '../hooks/useScrollReveal';
 
 const Hero: React.FC = () => {
   useScrollReveal();
+  const navigate = useNavigate(); // <-- initialize navigate
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -16,6 +18,11 @@ const Hero: React.FC = () => {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
+
+  // Redirect handler
+  const handleExploreClick = () => {
+    navigate('/solutions'); // <-- SPA navigation to /solutions
+  };
 
   return (
     <section id="home" className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-purple-950">
@@ -68,10 +75,15 @@ const Hero: React.FC = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <button className="group bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:from-cyan-600 hover:via-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-xl">
+              {/* Updated Button with React Router Navigation */}
+              <button
+                onClick={handleExploreClick}
+                className="group bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:from-cyan-600 hover:via-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-xl"
+              >
                 Explore Our Solutions
                 <ArrowRight className="inline-block ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
+
               <button className="border-2 border-cyan-400 text-cyan-400 px-8 py-4 rounded-2xl font-semibold text-lg hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-600 hover:text-white transition-all duration-300 shadow-lg">
                 Watch Demo
               </button>
