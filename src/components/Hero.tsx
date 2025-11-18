@@ -19,6 +19,7 @@ const Hero: React.FC = () => {
   }, []);
 
   return (
+    
     <section
       id="home"
       className="relative min-h-screen flex items-center overflow-hidden 
