@@ -12,7 +12,7 @@ import logisticsImage from "../assets/industry/logisticSupply.png";
 import educationImage from "../assets/industry/education.png";
 import realEstateImage from "../assets/industry/real-estate.png";
 import financeImage from "../assets/industry/finance.png";
-import hrImage from "../assets/industry/hr.png";
+import hrImage from "../assets/industry/HR.png";
 import sportsImage from "../assets/industry/sports.png";
 
 interface Industry {

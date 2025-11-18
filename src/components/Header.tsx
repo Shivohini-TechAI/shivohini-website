@@ -21,11 +21,11 @@ const Header: React.FC = () => {
     { name: "Industries", path: "/industries" },
     { name: "Careers", path: "/careers" },
     { name: "Contact", path: "/contact" },
-    { name: "Blog", path: "/#blog" },
+    { name: "Blog", path: "/BlogUpdates" },
   ];
 
   const handleNavClick = (path: string) => {
-    if (path === "/#blog") {
+    if (path === "BlogUpdates") {
       // Scroll to blog section on home page
       const blogElement = document.getElementById('blog');
       if (blogElement) {
